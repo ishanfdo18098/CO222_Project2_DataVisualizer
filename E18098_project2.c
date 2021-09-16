@@ -2,12 +2,11 @@
 CO222: Programming Methodology - Project 2
 Meeting Data Visualizer
 
+GITHUB - https://github.com/ishanfdo18098/CO222_Project2
+
 Notes:
 1) -l or --length both works. similar to that --meeting --time --participants work too.
 
-
-To do:
--Invalid option [%s], do this outside getopt as the whole string needs to be printed
 
 Author : Fernando K.A. Ishan - E/18/098
 */
@@ -19,13 +18,18 @@ Author : Fernando K.A. Ishan - E/18/098
 
 #define MAX_ENTRIES 1000
 
-char namesArray[MAX_ENTRIES][100] = {};
-int numberOfParticipants[MAX_ENTRIES] = {};
-int timeDuration[MAX_ENTRIES] = {};
+char namesARRAY[MAX_ENTRIES][100] = {};
+int numberOfMeetingsARRAY[MAX_ENTRIES] = {};
+int numberOfParticipantsARRAY[MAX_ENTRIES] = {};
+int timeDurationInMinutesARRAY[MAX_ENTRIES] = {};
 
-void parseOptions(int argc, char **argv); // option parsing
-void printUsage();                        // print how to use the program
-void readFile(char *fileName);            //read from file
+void parseOptions(int argc, char **argv);                                                 // option parsing
+void printUsage();                                                                        // print how to use the program
+void readFile(char *fileName);                                                            // read from file
+int getIndexOfNameInArray(char *namePointer);                                             // get the index of the name in the array
+int getIndexOfEmptyElementInNamesArray();                                                 // get index of the first empty element in name array to add element to
+void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR); // write a record to all 3 arrays
+int convertHoursToMinutes(char *timeInHours);                                             // convert hours into minutes
 
 int numberOfElementsInGraph = 10; // -l option given
 int isScaled = 0;                 // flag for --scaled
@@ -47,7 +51,7 @@ int main(int argc, char **argv)
     {
         char *currentFileName = &argv[index][0];
 
-        printf("current filename: %s\n", currentFileName);
+        // printf("current filename: %s\n", currentFileName);
 
         // check if the file format is correct
         char *formatOfCurrentFile = &currentFileName[strlen(currentFileName) - 4]; //get the pointer to the format of file
@@ -70,6 +74,15 @@ int main(int argc, char **argv)
     {
         puts("No input files were given");
         printUsage();
+    }
+
+    for (int i = 0; i < MAX_ENTRIES; i++)
+    {
+        printf("%s %d %d %d\n", namesARRAY[i], numberOfMeetingsARRAY[i], numberOfParticipantsARRAY[i], timeDurationInMinutesARRAY[i]);
+        if (namesARRAY[i][0] == 0)
+        {
+            break;
+        }
     }
 
     return 0;
@@ -106,7 +119,7 @@ void parseOptions(int argc, char **argv)
         switch (optionEntered)
         {
         case 'l':
-            printf("option -l with %s\n", optarg);
+            // printf("option -l with %s\n", optarg);
 
             for (int i = 0; i < strlen(optarg); i++)
             {
@@ -134,22 +147,22 @@ void parseOptions(int argc, char **argv)
                 numberOfElementsInGraph = 10;
             }
 
-            printf("-l changed to %d\n", numberOfElementsInGraph);
+            // printf("-l changed to %d\n", numberOfElementsInGraph);
             break;
         case 'm':
-            puts("option -m");
+            // puts("option -m");
             isMeeting = 1;
             break;
         case 't':
-            printf("option -t\n");
+            // printf("option -t\n");
             isTime = 1;
             break;
         case 'p':
-            printf("option -p\n");
+            // printf("option -p\n");
             isParticipants = 1;
             break;
         case 's':
-            printf("option --scaled\n");
+            // printf("option --scaled\n");
             isScaled = 1;
             break;
         case '?':
@@ -268,8 +281,99 @@ void readFile(char *fileName)
             round++;
         }
 
-        printf("%s %s %s", pointerToName, pointerToParticipants, pointerToTimeInHours);
+        // printf("%s %s %s", pointerToName, pointerToParticipants, pointerToTimeInHours);
+
+        int isNameExist = getIndexOfNameInArray(pointerToName);
+        // printf("%d", isNameExist);
+
+        if (isNameExist)
+        {
+            int a = 1;
+        }
+        else
+        {
+            writeNEWRecordToArrays(pointerToName, pointerToParticipants, pointerToTimeInHours);
+        }
     }
 
     fclose(filePointer);
+}
+
+int getIndexOfNameInArray(char *namePointer)
+{
+    //loop through the list to find if the name exists
+    for (int i = 0; i < MAX_ENTRIES; i++)
+    {
+        if (strcmp(namePointer, namesARRAY[i]) == 0)
+        {
+            return i;
+        }
+
+        //if a name is 0, dont have to check for names after that.
+        if (namesARRAY[i][0] == 0)
+        {
+            break;
+        }
+    }
+    //name doesnt exist
+    return 0;
+}
+
+int getIndexOfEmptyElementInNamesArray()
+{
+    for (int i = 0; i < MAX_ENTRIES; i++)
+    {
+        if (namesARRAY[i][0] == 0)
+        {
+            return i;
+        }
+    }
+    puts("Array full, please increase MAX_ENTRIES");
+    exit(0);
+}
+
+void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR)
+{
+    //find the index to write to
+    int indexToWriteTo = getIndexOfEmptyElementInNamesArray(nameSTR); //finds index if existing or give new index to write to
+
+    //convert strings to int
+    int currentNumberOfParticipantsINT = atoi(pariticipantsSTR);
+    int timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
+    // printf("%d\n", timeInMinsINT);
+    // printf("%d\n", currentNumberOfParticipantsINT);
+
+    //write the data to the arrays
+    strcpy(namesARRAY[indexToWriteTo], nameSTR);
+    numberOfMeetingsARRAY[indexToWriteTo] = 1;
+    numberOfParticipantsARRAY[indexToWriteTo] = currentNumberOfParticipantsINT;
+    timeDurationInMinutesARRAY[indexToWriteTo] = timeInMinsINT;
+}
+
+int convertHoursToMinutes(char *timeInHours)
+{
+    //format is in hh:mm:ss but sometimes its no hh, its h
+
+    char *token;
+    /* get the first token */
+    token = strtok(timeInHours, ":");
+    /* walk through other tokens */
+    int round = 0;
+    int timeInMinutes = 0;
+    while (token != NULL)
+    {
+        switch (round)
+        {
+        case 0:
+            timeInMinutes += atoi(token) * 60;
+            break;
+        case 1:
+            timeInMinutes += atoi(token);
+            break;
+        }
+        round++;
+        token = strtok(NULL, ":");
+    }
+
+    return timeInMinutes;
 }
