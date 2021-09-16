@@ -22,7 +22,7 @@ void printUsage();                        // print how to use the program
 
 int numberOfElementsInGraph = 10; // -l option given
 int isScaled = 0;                 // flag for --scaled
-int isMeeting = 1;                // flag for -m
+int isMeeting = 0;                // flag for -m
 int isParticipants = 0;           // flag for -p
 int isTime = 0;                   // flag for -t
 char *programName;                //used to get the program name in printUsage()
@@ -37,7 +37,22 @@ int main(int argc, char **argv)
     //file names
     for (int index = optind; index < argc; index++)
     {
-        printf("Non-option argument %s\n", argv[index]);
+        char *currentFileName = &argv[index][0];
+
+        printf("current filename: %s\n", currentFileName);
+
+        char *formatOfCurrentFile = &currentFileName[strlen(currentFileName) - 4]; //get the pointer to the format of file
+        if (strcmp(formatOfCurrentFile, ".csv") != 0)                              //check if file format is .csv
+        {
+            //if its not .csv
+            puts("Only .csv files should be given as inputs.");
+            exit(0);
+        }
+        else
+        {
+            //if its .csv
+            continue;
+        }
     }
 
     return 0;
@@ -111,12 +126,10 @@ void parseOptions(int argc, char **argv)
         case 't':
             printf("option -t\n");
             isTime = 1;
-            isMeeting = 0;
             break;
         case 'p':
             printf("option -p\n");
             isParticipants = 1;
-            isMeeting = 0;
             break;
         case 's':
             printf("option --scaled\n");
@@ -131,6 +144,20 @@ void parseOptions(int argc, char **argv)
             }
             break;
         }
+    }
+
+    //if no options are given, default should be meeting
+    if (isMeeting + isParticipants + isTime == 0)
+    {
+        isMeeting = 1;
+    }
+
+    //if multiple options are given
+    if (isMeeting + isParticipants + isTime > 1)
+    {
+        puts("Cannot plot multiple parameters in same graph.");
+        printUsage();
+        exit(0);
     }
 }
 
