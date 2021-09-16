@@ -17,8 +17,15 @@ Author : Fernando K.A. Ishan - E/18/098
 #include <string.h> //strlen()
 #include <ctype.h>  //isdigit()
 
+#define MAX_ENTRIES 1000
+
+char namesArray[MAX_ENTRIES][100] = {};
+int numberOfParticipants[MAX_ENTRIES] = {};
+int timeDuration[MAX_ENTRIES] = {};
+
 void parseOptions(int argc, char **argv); // option parsing
 void printUsage();                        // print how to use the program
+void readFile(char *fileName);            //read from file
 
 int numberOfElementsInGraph = 10; // -l option given
 int isScaled = 0;                 // flag for --scaled
@@ -54,6 +61,7 @@ int main(int argc, char **argv)
         {
             //if its .csv
             fileCount++;
+            readFile(currentFileName);
             continue;
         }
     }
@@ -203,4 +211,37 @@ void parseOptions(int argc, char **argv)
 void printUsage()
 {
     printf("usage: %s [-l length] [-m | -t | -p] [--scaled] filename1 filename2 ..\n", programName);
+}
+
+void readFile(char *fileName)
+{
+    //open the given file
+    FILE *filePointer;
+    filePointer = fopen(fileName, "r");
+
+    //if file is not available
+    if (filePointer == NULL)
+    {
+        puts("Cannot open one or more given files");
+        exit(0);
+    }
+
+    //if the file is empty
+    int c = fgetc(filePointer);
+    if (c == EOF)
+    {
+        puts("No data to process");
+    }
+    else
+    {
+        ungetc(c, filePointer);
+    }
+
+    // char *line = NULL;
+    // size_t len = 0;
+    // ssize_t read;
+    // while ((read = getline(&line, &len, filePointer)) != -1)
+    // {
+    //     printf("%s", line);
+    // }
 }
