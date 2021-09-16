@@ -155,6 +155,36 @@ void parseOptions(int argc, char **argv)
         }
     }
 
+    //check if all the options are valid
+    char optionsPossible[5][10] = {"-m", "-t", "-p", "--scaled", "-l"};
+    for (int i = 0; i < argc; i++)
+    {
+        if (argv[i][0] != '-') // if its not a option, dont check it
+        {
+            continue;
+        }
+        int matchFound = 0;
+        for (int j = 0; j < 5; j++) //loop over all the possible words
+        {
+            if (strcmp(argv[i], optionsPossible[j]) == 0) //if it matches
+            {
+                matchFound = 1; //make the flag 1
+            }
+        }
+
+        if (matchFound == 0) //if there are no matches for that option
+        {
+            printf("Invalid option [%s]\n", argv[i]); //show error
+            printUsage();
+            exit(0);
+        }
+
+        if (strcmp(argv[i], "-l") == 0) //if its -l, you dont have to check the next word as its checked in getopt anyway
+        {
+            i++;
+        }
+    }
+
     //if no options are given, default should be meeting
     if (isMeeting + isParticipants + isTime == 0)
     {
