@@ -9,30 +9,53 @@ Author : Fernando K.A. Ishan - E/18/098
 
 int main(int argc, char **argv)
 {
-    char optionEntered;
-    opterr = 0;
-    // ref - https://stackoverflow.com/a/44371579
-    while ((optionEntered = getopt(argc, argv, "l:mtp")) != -1)
+    // https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Option-Example.html
+    int optionEntered;
+    while (1)
     {
+        static struct option long_options[] =
+            {
+                {"length", required_argument, 0, 'l'},
+                {"meeting", no_argument, 0, 'm'},
+                {"time", no_argument, 0, 't'},
+                {"participants", no_argument, 0, 'p'},
+                {"scaled", no_argument, 0, 's'},
+                {0, 0, 0, 0}};
+
+        /* getopt_long stores the option index here. */
+        int option_index = 0;
+
+        optionEntered = getopt_long(argc, argv, "l:mtps", long_options, &option_index);
+
+        /* Detect the end of the options. */
+        if (optionEntered == -1)
+            break;
+
         switch (optionEntered)
         {
         case 'l':
-            printf("l entered\n");
+            printf("option -l with %s\n", optarg);
             break;
+
         case 'm':
-            printf("m entered\n");
+            puts("option -m");
             break;
+
         case 't':
-            printf("t entered\n");
+            printf("option -t\n");
             break;
+
         case 'p':
-            printf("p entered\n");
+            printf("option -p\n");
             break;
+
+        case 's':
+            printf("option --scaled\n");
+            break;
+
         case '?':
-            printf("%c unkown option entered %s\n", optionEntered, optarg);
+            /* getopt_long already printed an error message. */
             break;
-        default:
-            printf("default\n");
         }
     }
 
