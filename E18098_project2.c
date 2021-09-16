@@ -2,19 +2,56 @@
 CO222: Programming Methodology - Project 2
 Meeting Data Visualizer
 
+Notes:
+1) -l or --length both works. similar to that --meeting --time --participants works too.
+
+
+To do:
+-Invalid option [%s] do this outside getopt as the whole string needs to be printed
+
 Author : Fernando K.A. Ishan - E/18/098
 */
 #include <stdio.h>
-#include <getopt.h>
+#include <getopt.h> //option parsing
+#include <stdlib.h> //aoti()
+
+void parseOptions(int argc, char **argv); // option parsing
+void printUsage();                        // print how to use the program
+
+int numberOfElementsInGraph = 10; // -l option given
+int isScaled = 0;                 // flag for --scaled
+int isMeeting = 1;                // flag for -m
+int isParticipants = 0;           // flag for -p
+int isTime = 0;                   // flag for -t
+char *programName;                //used to get the program name in printUsage()
 
 int main(int argc, char **argv)
 {
+    programName = &(argv[0][0]);
+
+    //parse the options -m -t -p -l
+    parseOptions(argc, argv);
+
+    //file names
+    for (int index = optind; index < argc; index++)
+    {
+        printf("Non-option argument %s\n", argv[index]);
+    }
+
+    return 0;
+}
+
+void parseOptions(int argc, char **argv)
+{
     // https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Option-Example.html
     int optionEntered;
+    opterr = 0;
     while (1)
     {
+        //options in long form and short
         static struct option long_options[] =
             {
+                //longForm, argsRequired?, flagVariableAddress, shortForm
                 {"length", required_argument, 0, 'l'},
                 {"meeting", no_argument, 0, 'm'},
                 {"time", no_argument, 0, 't'},
@@ -31,38 +68,59 @@ int main(int argc, char **argv)
         if (optionEntered == -1)
             break;
 
+        //switch on each optionEntered
         switch (optionEntered)
         {
         case 'l':
             printf("option -l with %s\n", optarg);
-            break;
+            int numberEntered = atoi(optarg);
+            if (numberEntered > 0 && numberEntered <= 10)
+            {
+                numberOfElementsInGraph = numberEntered;
+            }
+            else if (numberEntered < 0)
+            {
+                printf("Invalid option(negative) for [-l]\n");
+                printUsage();
+                exit(0);
+            }
+            else if (numberEntered > 10)
+            {
+                numberOfElementsInGraph = 10;
+            }
 
+            printf("-l changed to %d\n", numberOfElementsInGraph);
+            break;
         case 'm':
             puts("option -m");
+            isMeeting = 1;
             break;
-
         case 't':
             printf("option -t\n");
+            isTime = 1;
+            isMeeting = 0;
             break;
-
         case 'p':
             printf("option -p\n");
+            isParticipants = 1;
+            isMeeting = 0;
             break;
-
         case 's':
             printf("option --scaled\n");
+            isScaled = 1;
             break;
-
         case '?':
-            /* getopt_long already printed an error message. */
+            if (optopt == 'l')
+            {
+                printf("Not enough options for [-l]\n");
+                printUsage();
+            }
             break;
         }
     }
+}
 
-    for (int index = optind; index < argc; index++)
-    {
-        printf("Non-option argument %s\n", argv[index]);
-    }
-
-    return 0;
+void printUsage()
+{
+    printf("usage: %s [-l length] [-m | -t | -p] [--scaled] filename1 filename2 ..\n", programName);
 }
