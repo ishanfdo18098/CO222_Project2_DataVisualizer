@@ -237,11 +237,39 @@ void readFile(char *fileName)
         ungetc(c, filePointer);
     }
 
-    // char *line = NULL;
-    // size_t len = 0;
-    // ssize_t read;
-    // while ((read = getline(&line, &len, filePointer)) != -1)
-    // {
-    //     printf("%s", line);
-    // }
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    while ((read = getline(&line, &len, filePointer)) != -1)
+    {
+        // https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
+
+        char *token;
+
+        /* get the first token */
+        token = strtok(line, ",");
+
+        char *pointerToName = token;
+        char *pointerToParticipants;
+        char *pointerToTimeInHours;
+        int round = 1;
+        /* walk through other tokens */
+        while (token != NULL)
+        {
+            token = strtok(NULL, ",");
+            if (round == 1)
+            {
+                pointerToParticipants = token;
+            }
+            else if (round == 2)
+            {
+                pointerToTimeInHours = token;
+            }
+            round++;
+        }
+
+        printf("%s %s %s", pointerToName, pointerToParticipants, pointerToTimeInHours);
+    }
+
+    fclose(filePointer);
 }
