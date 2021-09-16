@@ -16,16 +16,20 @@ Author : Fernando K.A. Ishan - E/18/098
 #include <string.h> //strlen()
 #include <ctype.h>  //isdigit()
 
+//maximums
 #define MAX_ENTRIES 1000
+#define MAX_NAME_LENGTH 200
 
-char namesARRAY[MAX_ENTRIES][100] = {};
+//this is kind of like the database 😂🤣
+//basically the elements are matched by the index number
+char namesARRAY[MAX_ENTRIES][MAX_NAME_LENGTH] = {};
 int numberOfMeetingsARRAY[MAX_ENTRIES] = {};
 int numberOfParticipantsARRAY[MAX_ENTRIES] = {};
 int timeDurationInMinutesARRAY[MAX_ENTRIES] = {};
 
 void parseOptions(int argc, char **argv);                                                 // option parsing
 void printUsage();                                                                        // print how to use the program
-void readFile(char *fileName);                                                            // read from file
+void readFileThenAddThemToArrays(char *fileName);                                         // read from file
 int getIndexOfNameInArray(char *namePointer);                                             // get the index of the name in the array
 int getIndexOfEmptyElementInNamesArray();                                                 // get index of the first empty element in name array to add element to
 void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR); // write a record to all 3 arrays
@@ -37,19 +41,21 @@ int isScaled = 0;                 // flag for --scaled
 int isMeeting = 0;                // flag for -m
 int isParticipants = 0;           // flag for -p
 int isTime = 0;                   // flag for -t
-char *programName;                //used to get the program name in printUsage()
+char *programName;                // used to get the program name in printUsage()
 
 int main(int argc, char **argv)
 {
+    //make a pointer to the name of program, used when printing the usage
     programName = &(argv[0][0]);
 
     //parse the options -m -t -p -l
     parseOptions(argc, argv);
 
     //process the files
-    int fileCount = 0;
+    int fileCount = 0; //keep a count of files to know if there are 0 files - > error
     for (int index = optind; index < argc; index++)
     {
+        //renaming for easiness of reading and writing
         char *currentFileName = &argv[index][0];
 
         // printf("current filename: %s\n", currentFileName);
@@ -66,17 +72,19 @@ int main(int argc, char **argv)
         {
             //if its .csv
             fileCount++;
-            readFile(currentFileName);
-            continue;
+            //read the file line by line and copy the data into respective arrays
+            readFileThenAddThemToArrays(currentFileName);
         }
     }
 
+    //if there are no files entered as args
     if (fileCount == 0)
     {
         puts("No input files were given");
         printUsage();
     }
 
+    //just for testing
     for (int i = 0; i < MAX_ENTRIES; i++)
     {
         printf("%s %d %d %d\n", namesARRAY[i], numberOfMeetingsARRAY[i], numberOfParticipantsARRAY[i], timeDurationInMinutesARRAY[i]);
@@ -89,12 +97,15 @@ int main(int argc, char **argv)
     return 0;
 }
 
+//parse the options
+//set the flags
+//check if more than 1 graphing option is given (-m -t -p)
 void parseOptions(int argc, char **argv)
 {
     // https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Option-Example.html
     int optionEntered;
-    opterr = 0;
-    while (1)
+    opterr = 0; //disable echoing that there is an error
+    while (1)   //until there are options left
     {
         //options in long form and short
         static struct option long_options[] =
@@ -104,71 +115,71 @@ void parseOptions(int argc, char **argv)
                 {"meeting", no_argument, 0, 'm'},
                 {"time", no_argument, 0, 't'},
                 {"participants", no_argument, 0, 'p'},
-                {"scaled", no_argument, 0, 's'},
+                {"scaled", no_argument, 0, 's'}, //this is the reason why getopt_long is used
                 {0, 0, 0, 0}};
 
         /* getopt_long stores the option index here. */
         int option_index = 0;
 
-        optionEntered = getopt_long(argc, argv, "l:mtps", long_options, &option_index);
+        optionEntered = getopt_long(argc, argv, "l:mtps", long_options, &option_index); //get each option and their respective strings next to them
 
         /* Detect the end of the options. */
-        if (optionEntered == -1)
+        if (optionEntered == -1) //if there are no options left
             break;
 
         //switch on each optionEntered
         switch (optionEntered)
         {
-        case 'l':
-            // printf("option -l with %s\n", optarg);
-
+        case 'l': //if -l is entered
+            //check if optarg is a numerical value
             for (int i = 0; i < strlen(optarg); i++)
             {
                 if (isdigit(optarg[i]) == 0)
                 {
+                    //if its not numerical , etc, -l abc
                     printf("Invalid options for [-l]\n");
                     printUsage();
                     exit(0);
                 }
             }
 
+            //convert string to int
             int numberEntered = atoi(optarg);
+
             if (numberEntered > 0 && numberEntered <= 10)
             {
+                //if the number entered is more than 0 and less tham 10
                 numberOfElementsInGraph = numberEntered;
             }
             else if (numberEntered < 0)
             {
+                //if less than 0
                 printf("Invalid option(negative) for [-l]\n");
                 printUsage();
                 exit(0);
             }
             else if (numberEntered > 10)
             {
+                //if more than 10 default to 10
                 numberOfElementsInGraph = 10;
             }
-
-            // printf("-l changed to %d\n", numberOfElementsInGraph);
             break;
-        case 'm':
-            // puts("option -m");
+        case 'm': // -m
             isMeeting = 1;
             break;
-        case 't':
-            // printf("option -t\n");
+        case 't': // -t
             isTime = 1;
             break;
-        case 'p':
-            // printf("option -p\n");
+        case 'p': //-t
             isParticipants = 1;
             break;
-        case 's':
-            // printf("option --scaled\n");
+        case 's': //--scaled
             isScaled = 1;
             break;
-        case '?':
+        case '?': //everything thats not specified (and has - sign before the word)
             if (optopt == 'l')
             {
+                // -l is there but without any number in front of it
                 printf("Not enough options for [-l]\n");
                 printUsage();
                 exit(0);
@@ -178,6 +189,8 @@ void parseOptions(int argc, char **argv)
     }
 
     //check if all the options are valid
+    //had to use whole new thing because the error log showed the argument entered, getopt only returns a char
+    //but need to echo the whole word ( -abc vs -a )
     char optionsPossible[5][10] = {"-m", "-t", "-p", "--scaled", "-l"};
     for (int i = 0; i < argc; i++)
     {
@@ -185,6 +198,8 @@ void parseOptions(int argc, char **argv)
         {
             continue;
         }
+
+        //check for matches
         int matchFound = 0;
         for (int j = 0; j < 5; j++) //loop over all the possible words
         {
@@ -196,7 +211,7 @@ void parseOptions(int argc, char **argv)
 
         if (matchFound == 0) //if there are no matches for that option
         {
-            printf("Invalid option [%s]\n", argv[i]); //show error
+            printf("Invalid option [%s]\n", argv[i]); //show error, %s is the whole reason for using this seperate part for checking those options
             printUsage();
             exit(0);
         }
@@ -222,15 +237,19 @@ void parseOptions(int argc, char **argv)
     }
 }
 
+//print how to use the program, the program name is also printed in it
+//thats why the name was stored at the top
 void printUsage()
 {
     printf("usage: %s [-l length] [-m | -t | -p] [--scaled] filename1 filename2 ..\n", programName);
 }
 
-void readFile(char *fileName)
+//read the file and write all the data into the corresponding arrays
+void readFileThenAddThemToArrays(char *fileName)
 {
     //open the given file
     FILE *filePointer;
+    //open file as "r"
     filePointer = fopen(fileName, "r");
 
     //if file is not available
@@ -248,58 +267,64 @@ void readFile(char *fileName)
     }
     else
     {
-        ungetc(c, filePointer);
+        ungetc(c, filePointer); //otherwise this character will be missing when we read the line again
     }
 
     char *line = NULL;
     size_t len = 0;
     ssize_t read;
+    //read each line
     while ((read = getline(&line, &len, filePointer)) != -1)
     {
         // https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
 
         char *token;
 
-        /* get the first token */
+        //first token
         token = strtok(line, ",");
 
-        char *pointerToName = token;
-        char *pointerToParticipants;
-        char *pointerToTimeInHours;
-        int round = 1;
+        //get pointers to the corresponding parts in the line
+        char *pointerToName = token; //first token is for the name
+        char *pointerToParticipants; //second token - participants
+        char *pointerToTimeInHours;  // third token - time
+        int round = 1;               //round is counted to idenity which token is going now
         /* walk through other tokens */
         while (token != NULL)
         {
             token = strtok(NULL, ",");
-            if (round == 1)
+            round++;
+            //based on the round, save the tokens into pointer variabels
+            if (round == 2)
             {
                 pointerToParticipants = token;
             }
-            else if (round == 2)
+            else if (round == 3)
             {
                 pointerToTimeInHours = token;
             }
             round++;
         }
 
-        // printf("%s %s %s", pointerToName, pointerToParticipants, pointerToTimeInHours);
-
+        //check if this name exists in our array
         int isNameExist = getIndexOfNameInArray(pointerToName);
-        // printf("%d", isNameExist);
 
         if (isNameExist)
         {
+            //if it exists, update the corresponding records
             updateExisitingRecord(pointerToName, pointerToParticipants, pointerToTimeInHours);
         }
         else
         {
+            //if it doesnt exist, create new records
             writeNEWRecordToArrays(pointerToName, pointerToParticipants, pointerToTimeInHours);
         }
     }
 
+    //close the file
     fclose(filePointer);
 }
 
+//search for name in array and return the index if available, else return 0
 int getIndexOfNameInArray(char *namePointer)
 {
     //loop through the list to find if the name exists
@@ -307,32 +332,40 @@ int getIndexOfNameInArray(char *namePointer)
     {
         if (strcmp(namePointer, namesARRAY[i]) == 0)
         {
+            //if the name matches, return the index
             return i;
         }
 
-        //if a name is 0, dont have to check for names after that.
+        //if the first char of current element is NULL, dont have to check for names after that as everything will be NULL after that
         if (namesARRAY[i][0] == 0)
         {
             break;
         }
     }
-    //name doesnt exist
+
+    //name doesnt exist, return 0
     return 0;
 }
 
+//get the index of a empty element in the arrays
+//used to write new elements to the arrays
 int getIndexOfEmptyElementInNamesArray()
 {
+    //look through all the elements in namesArray
     for (int i = 0; i < MAX_ENTRIES; i++)
     {
+        //if the names first char is NULL, whole record is null, return the index
         if (namesARRAY[i][0] == 0)
         {
             return i;
         }
     }
+    //if the index doesnt return it means the array is full. size exceeded
     puts("Array full, please increase MAX_ENTRIES");
     exit(0);
 }
 
+//write a new record into the arrays
 void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR)
 {
     //find the index to write to
@@ -341,16 +374,15 @@ void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInH
     //convert strings to int
     int currentNumberOfParticipantsINT = atoi(pariticipantsSTR);
     int timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
-    // printf("%d\n", timeInMinsINT);
-    // printf("%d\n", currentNumberOfParticipantsINT);
 
-    //write the data to the arrays
+    //write the data to the arrays at the correct index
     strcpy(namesARRAY[indexToWriteTo], nameSTR);
     numberOfMeetingsARRAY[indexToWriteTo] = 1;
     numberOfParticipantsARRAY[indexToWriteTo] = currentNumberOfParticipantsINT;
     timeDurationInMinutesARRAY[indexToWriteTo] = timeInMinsINT;
 }
 
+//update an existing record, meaning add the current values to the old values
 void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR)
 {
     //find the index to write to
@@ -361,35 +393,38 @@ void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHo
     int timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
 
     //write the data to the arrays
+    //name is not updated because it cant change 😊
     numberOfMeetingsARRAY[indexToWriteTo] += 1;
     numberOfParticipantsARRAY[indexToWriteTo] += currentNumberOfParticipantsINT;
     timeDurationInMinutesARRAY[indexToWriteTo] += timeInMinsINT;
 }
 
+//convert string hours into int minutes
 int convertHoursToMinutes(char *timeInHours)
 {
-    //format is in hh:mm:ss but sometimes its no hh, its h
+    //format is in hh:mm:ss but sometimes its not hh, its h
 
     char *token;
     /* get the first token */
     token = strtok(timeInHours, ":");
     /* walk through other tokens */
-    int round = 0;
+    int round = 0; //keep the round number to know if its hours or minutes
     int timeInMinutes = 0;
     while (token != NULL)
     {
         switch (round)
         {
-        case 0:
+        case 0: //its hours
             timeInMinutes += atoi(token) * 60;
             break;
-        case 1:
+        case 1: //its minutes
             timeInMinutes += atoi(token);
             break;
         }
-        round++;
-        token = strtok(NULL, ":");
+        round++;                   //increase the round number
+        token = strtok(NULL, ":"); //go to next token
     }
 
+    //return the time in minutes
     return timeInMinutes;
 }
