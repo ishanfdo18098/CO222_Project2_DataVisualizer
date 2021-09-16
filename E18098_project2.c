@@ -34,13 +34,15 @@ int main(int argc, char **argv)
     //parse the options -m -t -p -l
     parseOptions(argc, argv);
 
-    //file names
+    //process the files
+    int fileCount = 0;
     for (int index = optind; index < argc; index++)
     {
         char *currentFileName = &argv[index][0];
 
         printf("current filename: %s\n", currentFileName);
 
+        // check if the file format is correct
         char *formatOfCurrentFile = &currentFileName[strlen(currentFileName) - 4]; //get the pointer to the format of file
         if (strcmp(formatOfCurrentFile, ".csv") != 0)                              //check if file format is .csv
         {
@@ -51,8 +53,15 @@ int main(int argc, char **argv)
         else
         {
             //if its .csv
+            fileCount++;
             continue;
         }
+    }
+
+    if (fileCount == 0)
+    {
+        puts("No input files were given");
+        printUsage();
     }
 
     return 0;
