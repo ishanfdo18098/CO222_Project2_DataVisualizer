@@ -30,6 +30,7 @@ int getIndexOfNameInArray(char *namePointer);                                   
 int getIndexOfEmptyElementInNamesArray();                                                 // get index of the first empty element in name array to add element to
 void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR); // write a record to all 3 arrays
 int convertHoursToMinutes(char *timeInHours);                                             // convert hours into minutes
+void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR);  // update existing record
 
 int numberOfElementsInGraph = 10; // -l option given
 int isScaled = 0;                 // flag for --scaled
@@ -288,7 +289,7 @@ void readFile(char *fileName)
 
         if (isNameExist)
         {
-            int a = 1;
+            updateExisitingRecord(pointerToName, pointerToParticipants, pointerToTimeInHours);
         }
         else
         {
@@ -348,6 +349,21 @@ void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInH
     numberOfMeetingsARRAY[indexToWriteTo] = 1;
     numberOfParticipantsARRAY[indexToWriteTo] = currentNumberOfParticipantsINT;
     timeDurationInMinutesARRAY[indexToWriteTo] = timeInMinsINT;
+}
+
+void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR)
+{
+    //find the index to write to
+    int indexToWriteTo = getIndexOfNameInArray(nameSTR); //finds index if existing or give new index to write to
+
+    //convert strings to int
+    int currentNumberOfParticipantsINT = atoi(pariticipantsSTR);
+    int timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
+
+    //write the data to the arrays
+    numberOfMeetingsARRAY[indexToWriteTo] += 1;
+    numberOfParticipantsARRAY[indexToWriteTo] += currentNumberOfParticipantsINT;
+    timeDurationInMinutesARRAY[indexToWriteTo] += timeInMinsINT;
 }
 
 int convertHoursToMinutes(char *timeInHours)
