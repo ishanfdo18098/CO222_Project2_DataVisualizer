@@ -302,7 +302,6 @@ void readFileThenAddThemToArrays(char *fileName)
             {
                 pointerToTimeInHours = token;
             }
-            round++;
         }
 
         //check if this name exists in our array
