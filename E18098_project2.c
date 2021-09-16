@@ -3,17 +3,19 @@ CO222: Programming Methodology - Project 2
 Meeting Data Visualizer
 
 Notes:
-1) -l or --length both works. similar to that --meeting --time --participants works too.
+1) -l or --length both works. similar to that --meeting --time --participants work too.
 
 
 To do:
--Invalid option [%s] do this outside getopt as the whole string needs to be printed
+-Invalid option [%s], do this outside getopt as the whole string needs to be printed
 
 Author : Fernando K.A. Ishan - E/18/098
 */
 #include <stdio.h>
 #include <getopt.h> //option parsing
 #include <stdlib.h> //aoti()
+#include <string.h> //strlen()
+#include <ctype.h>  //isdigit()
 
 void parseOptions(int argc, char **argv); // option parsing
 void printUsage();                        // print how to use the program
@@ -73,6 +75,17 @@ void parseOptions(int argc, char **argv)
         {
         case 'l':
             printf("option -l with %s\n", optarg);
+
+            for (int i = 0; i < strlen(optarg); i++)
+            {
+                if (isdigit(optarg[i]) == 0)
+                {
+                    printf("Invalid options for [-l]\n");
+                    printUsage();
+                    exit(0);
+                }
+            }
+
             int numberEntered = atoi(optarg);
             if (numberEntered > 0 && numberEntered <= 10)
             {
@@ -114,6 +127,7 @@ void parseOptions(int argc, char **argv)
             {
                 printf("Not enough options for [-l]\n");
                 printUsage();
+                exit(0);
             }
             break;
         }
