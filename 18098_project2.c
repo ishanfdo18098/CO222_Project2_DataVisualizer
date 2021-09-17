@@ -6,7 +6,8 @@ GITHUB - https://github.com/ishanfdo18098/CO222_Project2
 
 Notes (different from sample program):
 1) -l or --length both works. similar to that --meeting --time --participants work too.
-2) wrong entries in .csv handled. (samplev1 doesn't check for these)
+2) -h is there to print how to use it
+3) wrong entries in .csv handled. (samplev1 doesn't check for these)
     - check if participant count is numerical
     - check if time is in valid format (Ashley_Parry,2,1a:38abc:06 also works in samplev1, and it just ignores those values)
     - invalid time formats lead to segmenation faults in samplev1, in this program it shows an error msg
@@ -124,6 +125,12 @@ int main(int argc, char **argv)
     puts("");                                         //go to new line
     for (int i = 0; i < numberOfElementsInGraph; i++) //number of items according to -l
     {
+        //if there is no record there, dont print it , and anything after that
+        if (namesARRAY[i + 1][0] == 0)
+        {
+            break;
+        }
+
         int barLength = getBarLength(i + 1, chosenArrayToSort);
 
         printTopAndLastLineOfEntry(barLength);
@@ -186,7 +193,7 @@ void parseOptions(int argc, char **argv)
             //convert string to int
             int numberEntered = atoi(optarg);
 
-            if (numberEntered > 0 && numberEntered <= 10)
+            if (numberEntered > 0)
             {
                 //if the number entered is more than 0 and less tham 10
                 numberOfElementsInGraph = numberEntered;
@@ -197,11 +204,6 @@ void parseOptions(int argc, char **argv)
                 printf("Invalid option(negative) for [-l]\n");
                 printUsage();
                 exit(0);
-            }
-            else if (numberEntered > 10)
-            {
-                //if more than 10 default to 10
-                numberOfElementsInGraph = 10;
             }
             break;
         case 'm': // -m
