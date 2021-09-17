@@ -635,18 +635,28 @@ void printLastLineOfGraph()
 
 int getBarLength(int index, int *chosenArray)
 {
+    int numberOfSpacesToKeep = getMaximumEnteredNameLength() + 2;
+    int numberOfBars = 80 - numberOfSpacesToKeep - 1;
+    int maximumBarLength = numberOfBars - getLengthOfNumber(chosenArray[index]);
+
     if (isScaled)
     {
-        int numberOfSpacesToKeep = getMaximumEnteredNameLength() + 2;
-        int numberOfBars = 80 - numberOfSpacesToKeep - 1;
-        int maximumBarLength = numberOfBars - getLengthOfNumber(chosenArray[index]);
+
         double numberOfBarsPerUnit = maximumBarLength / (double)chosenArray[1];
         int numberOfBarsInThisEntry = (int)(numberOfBarsPerUnit * chosenArray[index]);
         return numberOfBarsInThisEntry;
     }
     else
     {
-        return 4;
+        int sumOfValues = 0;
+        for (int i = 1; i < MAX_ENTRIES; i++)
+        {
+            sumOfValues += chosenArray[i];
+        }
+
+        double numberOfBarsPerUnit = (double)maximumBarLength / sumOfValues;
+        int numberOfBarsForThisEntry = (int)(numberOfBarsPerUnit * chosenArray[index]);
+        return numberOfBarsForThisEntry;
     }
 }
 
