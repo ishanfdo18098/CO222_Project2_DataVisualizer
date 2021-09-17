@@ -9,7 +9,7 @@ Notes (different from sample program):
 2) wrong entries in .csv handled. (samplev1 doesn't check for these)
     - check if participant count is numerical
     - check if time is in valid format (Ashley_Parry,2,1a:38abc:06 also works in samplev1, and it just ignores those values)
-
+    - invalid time formats lead to segmenation faults in samplev1, in this program it shows an error msg
 
 Author : Fernando K.A. Ishan - E/18/098
 */
@@ -317,6 +317,13 @@ void readFileThenAddThemToArrays(char *fileName)
     {
         // https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
 
+        //if the line is not formatted properly, error
+        if (strlen(line) < 7) //h:mm:ss is at least 7 chars long, if thats not there, wrong format
+        {
+            puts("File/s contain wrong entries.");
+            exit(0);
+        }
+
         char *token;
 
         //first token
@@ -343,6 +350,13 @@ void readFileThenAddThemToArrays(char *fileName)
             }
         }
         //now all the pointers are pointed correctly
+
+        //if there were no 2 commas, then something is wrong
+        if (round < 4)
+        {
+            puts("File/s contain wrong entries.");
+            exit(0);
+        }
 
         //error checking
         if (isParticipants)
