@@ -309,6 +309,7 @@ void readFileThenAddThemToArrays(char *fileName)
     if (c == EOF)
     {
         puts("No data to process");
+        exit(0);
     }
     else
     {
