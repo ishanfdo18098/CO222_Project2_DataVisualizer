@@ -3,6 +3,5 @@ E18098_project2.exe
 .vscode/launch.json
 .vscode/tasks.json
 .vscode/settings.json
-uploadToAiken.bat
 test.c
 test.exe

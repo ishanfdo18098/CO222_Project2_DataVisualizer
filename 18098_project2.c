@@ -8,10 +8,8 @@ Notes (different from sample program):
 1) -l or --length both works. similar to that --meeting --time --participants work too.
 2) wrong entries in .csv handled. (samplev1 doesn't check for these)
     - check if participant count is numerical
-    - check if time is in valid format (Ashley_Parry,2,1a:38abc:06 also works in samplev1)
+    - check if time is in valid format (Ashley_Parry,2,1a:38abc:06 also works in samplev1, and it just ignores those values)
 
-TODO:
-file wrong entries
 
 Author : Fernando K.A. Ishan - E/18/098
 */
@@ -99,6 +97,7 @@ int main(int argc, char **argv)
     {
         puts("No input files were given");
         printUsage();
+        exit(0);
     }
 
     // SORTING
@@ -346,7 +345,10 @@ void readFileThenAddThemToArrays(char *fileName)
         //now all the pointers are pointed correctly
 
         //error checking
-        checkIfStringIsNumerical(pointerToParticipants);
+        if (isParticipants)
+        {
+            checkIfStringIsNumerical(pointerToParticipants);
+        }
 
         //check if this name exists in our array
         int isNameExist = getIndexOfNameInArray(pointerToName);
@@ -456,7 +458,10 @@ int convertHoursToMinutes(char *timeInHours)
     int breakFlag = 0; //stop strtok on unwated strings, otherwise it goes onto empty strings and cause errors
     while (token != NULL)
     {
-        checkIfStringIsNumerical(token);
+        if (isTime)
+        {
+            checkIfStringIsNumerical(token);
+        }
         switch (round)
         {
         case 0: //its hours
