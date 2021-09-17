@@ -4,8 +4,12 @@ Meeting Data Visualizer
 
 GITHUB - https://github.com/ishanfdo18098/CO222_Project2
 
-Notes:
+Notes (different from sample program):
 1) -l or --length both works. similar to that --meeting --time --participants work too.
+2) wrong entries in .csv handled. (samplev1 doesn't check for these)
+    - check if participant count is numerical
+    - check if time is in valid format (Ashley_Parry,2,1a:38abc:06 also works in samplev1)
+
 
 
 Author : Fernando K.A. Ishan - E/18/098
@@ -21,7 +25,9 @@ Author : Fernando K.A. Ishan - E/18/098
 #define MAX_NAME_LENGTH 200
 
 //this is kind of like the database 😂🤣
-//basically the elements are matched by the index number
+//basically the elements are matched by the index number.
+//IMPORTANT: element at index 0 is not used. For some reason it didnt work properly (checking if the name exists didnt work for index 0)
+//therefore, records are save from index 1 and onwards, index 0 is not used for anything
 char namesARRAY[MAX_ENTRIES][MAX_NAME_LENGTH] = {};
 int numberOfMeetingsARRAY[MAX_ENTRIES] = {};
 int numberOfParticipantsARRAY[MAX_ENTRIES] = {};
@@ -35,6 +41,7 @@ int getIndexOfEmptyElementInNamesArray();                                       
 void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR); // write a record to all 3 arrays
 int convertHoursToMinutes(char *timeInHours);                                             // convert hours into minutes
 void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR);  // update existing record
+void checkIfStringIsNumerical(char *pointerToString);                                     // check if a string is numerical
 
 int numberOfElementsInGraph = 10; // -l option given
 int isScaled = 0;                 // flag for --scaled
@@ -85,7 +92,7 @@ int main(int argc, char **argv)
     }
 
     //just for testing
-    for (int i = 0; i < MAX_ENTRIES; i++)
+    for (int i = 1; i < MAX_ENTRIES; i++)
     {
         printf("%s %d %d %d\n", namesARRAY[i], numberOfMeetingsARRAY[i], numberOfParticipantsARRAY[i], timeDurationInMinutesARRAY[i]);
         if (namesARRAY[i][0] == 0)
@@ -303,6 +310,10 @@ void readFileThenAddThemToArrays(char *fileName)
                 pointerToTimeInHours = token;
             }
         }
+        //now all the pointers are pointed correctly
+
+        //error checking
+        checkIfStringIsNumerical(pointerToParticipants);
 
         //check if this name exists in our array
         int isNameExist = getIndexOfNameInArray(pointerToName);
@@ -327,7 +338,7 @@ void readFileThenAddThemToArrays(char *fileName)
 int getIndexOfNameInArray(char *namePointer)
 {
     //loop through the list to find if the name exists
-    for (int i = 0; i < MAX_ENTRIES; i++)
+    for (int i = 1; i < MAX_ENTRIES; i++)
     {
         if (strcmp(namePointer, namesARRAY[i]) == 0)
         {
@@ -351,7 +362,7 @@ int getIndexOfNameInArray(char *namePointer)
 int getIndexOfEmptyElementInNamesArray()
 {
     //look through all the elements in namesArray
-    for (int i = 0; i < MAX_ENTRIES; i++)
+    for (int i = 1; i < MAX_ENTRIES; i++)
     {
         //if the names first char is NULL, whole record is null, return the index
         if (namesARRAY[i][0] == 0)
@@ -411,6 +422,7 @@ int convertHoursToMinutes(char *timeInHours)
     int timeInMinutes = 0;
     while (token != NULL)
     {
+        checkIfStringIsNumerical(token);
         switch (round)
         {
         case 0: //its hours
@@ -426,4 +438,18 @@ int convertHoursToMinutes(char *timeInHours)
 
     //return the time in minutes
     return timeInMinutes;
+}
+
+//check if the string is numerical
+void checkIfStringIsNumerical(char *pointerToString)
+{
+    //for each char in the string
+    for (int i = 0; i < strlen(pointerToString); i++)
+    {
+        if (isdigit(pointerToString[i]) == 0) //check if that char is not a digit
+        {
+            puts("File/s contain wrong entries."); //error
+            exit(0);
+        }
+    }
 }
