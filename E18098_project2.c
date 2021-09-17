@@ -10,7 +10,9 @@ Notes (different from sample program):
     - check if participant count is numerical
     - check if time is in valid format (Ashley_Parry,2,1a:38abc:06 also works in samplev1)
 
-
+TODO:
+file wrong entries
+fix the barLength 
 
 Author : Fernando K.A. Ishan - E/18/098
 */
@@ -22,7 +24,7 @@ Author : Fernando K.A. Ishan - E/18/098
 
 //maximums
 #define MAX_ENTRIES 1000
-#define MAX_NAME_LENGTH 200
+#define MAX_NAME_LENGTH 200 + 1
 
 //this is kind of like the database 😂🤣
 //basically the elements are matched by the index number.
@@ -44,6 +46,11 @@ void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHo
 void checkIfStringIsNumerical(char *pointerToString);                                     // check if a string is numerical
 void sortData(int *chosenArray);                                                          // sort the dataset using the -m -t -p
 int getNumberOfRecordsInArrays();                                                         // returns the number of entries in the database
+int getMaximumEnteredNameLength();                                                        // returns the maximum name length currently in namesArray
+void printTopAndLastLineOfEntry(int barLength);                                           // print the first line of each entry in graph
+void printMiddleLineOfEntry(char *name, int numberAfterTheBar, int barLength);            // print the middle line in each entry
+void printEmptyLineInGraph();                                                             // print the empty line after each entry in graph
+void printLastLineOfGraph();                                                              // print the last line of graph
 
 int numberOfElementsInGraph = 10; // -l option given
 int isScaled = 0;                 // flag for --scaled
@@ -113,15 +120,17 @@ int main(int argc, char **argv)
     sortData(chosenArrayToSort);
     //after this point, only the names array and chosenArray are in order, other arrays dont mean anything because they were not sorted accordingly
 
-    //just for testing
-    for (int i = 1; i < MAX_ENTRIES; i++)
+    //print the graphh
+    puts(""); //go to new line
+    int barLength = 10;
+    for (int i = 0; i < numberOfElementsInGraph; i++) //number of items according to -l
     {
-        printf("%s %d %d %d\n", namesARRAY[i], numberOfMeetingsARRAY[i], numberOfParticipantsARRAY[i], timeDurationInMinutesARRAY[i]);
-        if (namesARRAY[i][0] == 0)
-        {
-            break;
-        }
+        printTopAndLastLineOfEntry(barLength);
+        printMiddleLineOfEntry(namesARRAY[i + 1], chosenArrayToSort[i + 1], barLength);
+        printTopAndLastLineOfEntry(barLength);
+        printEmptyLineInGraph();
     }
+    printLastLineOfGraph();
 
     return 0;
 }
@@ -519,4 +528,80 @@ void sortData(int *chosenArray)
 int getNumberOfRecordsInArrays()
 {
     return getIndexOfEmptyElementInNamesArray() - 1; //because index 0 is not used
+}
+
+//get the maximum length of a single name entered into the namesArray, used when printing the table to scale
+int getMaximumEnteredNameLength()
+{
+    int maxmimumLength = 0;
+    //go through all the names and find the maximum
+    for (int i = 0; i < getNumberOfRecordsInArrays() + 1; i++)
+    {
+        if (strlen(namesARRAY[i]) > maxmimumLength)
+        {
+            maxmimumLength = strlen(namesARRAY[i]);
+        }
+    }
+
+    //retur the maximum
+    return maxmimumLength;
+}
+
+void printTopAndLastLineOfEntry(int barLength)
+{
+    int numberOfSpacesToKeep = getMaximumEnteredNameLength() + 2;
+    for (int i = 0; i < numberOfSpacesToKeep; i++)
+    {
+        printf(" ");
+    }
+    printf("\u2502");
+
+    for (int i = 0; i < barLength * 2; i++)
+    {
+        printf("\u2591");
+    }
+    puts("");
+}
+
+void printMiddleLineOfEntry(char *name, int numberAfterTheBar, int barLength)
+{
+    //print the name
+    printf(" %s", name);
+
+    //print the correct number of spaces
+    int numberOfSpaces = getMaximumEnteredNameLength() - strlen(name) + 1;
+    for (int i = 0; i < numberOfSpaces; i++)
+    {
+        printf(" ");
+    }
+
+    printf("\u2502");
+    for (int i = 0; i < barLength * 2; i++)
+    {
+        printf("\u2591");
+    }
+    printf("%d", numberAfterTheBar);
+    puts("");
+}
+
+void printEmptyLineInGraph()
+{
+    printTopAndLastLineOfEntry(0);
+}
+
+void printLastLineOfGraph()
+{
+    int numberOfSpacesToKeep = getMaximumEnteredNameLength() + 2;
+    for (int i = 0; i < numberOfSpacesToKeep; i++)
+    {
+        printf(" ");
+    }
+    printf("\u2514");
+
+    int numberOfBars = 80 - numberOfSpacesToKeep - 1;
+    for (int i = 0; i < numberOfBars; i++)
+    {
+        printf("\u2500");
+    }
+    printf("\n");
 }
