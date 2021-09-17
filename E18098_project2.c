@@ -530,12 +530,12 @@ int getNumberOfRecordsInArrays()
     return getIndexOfEmptyElementInNamesArray() - 1; //because index 0 is not used
 }
 
-//get the maximum length of a single name entered into the namesArray, used when printing the table to scale
+//get the maximum length of a single name entered into the namesArray (until whats specified by -l), used when printing the table to scale
 int getMaximumEnteredNameLength()
 {
     int maxmimumLength = 0;
-    //go through all the names and find the maximum
-    for (int i = 0; i < getNumberOfRecordsInArrays() + 1; i++)
+    //go through the names that will be printed and find the maximum
+    for (int i = 0; i < numberOfElementsInGraph + 1; i++)
     {
         if (strlen(namesARRAY[i]) > maxmimumLength)
         {
@@ -547,22 +547,29 @@ int getMaximumEnteredNameLength()
     return maxmimumLength;
 }
 
+//this prints the top and the last line of each entry in the graph, the one below the name and above the name
 void printTopAndLastLineOfEntry(int barLength)
 {
+    //get the number of spaces to keep after the name, changes with the longest name
     int numberOfSpacesToKeep = getMaximumEnteredNameLength() + 2;
+    //print the spaces
     for (int i = 0; i < numberOfSpacesToKeep; i++)
     {
         printf(" ");
     }
+    //print the vertical line
     printf("\u2502");
 
+    //print the bar
     for (int i = 0; i < barLength * 2; i++)
     {
         printf("\u2591");
     }
+    //goto next line
     puts("");
 }
 
+//this prints the middle line of each entry in graph, the line with name and the number
 void printMiddleLineOfEntry(char *name, int numberAfterTheBar, int barLength)
 {
     //print the name
@@ -575,33 +582,50 @@ void printMiddleLineOfEntry(char *name, int numberAfterTheBar, int barLength)
         printf(" ");
     }
 
+    //prin the verticle line
     printf("\u2502");
+
+    //print the bar
     for (int i = 0; i < barLength * 2; i++)
     {
         printf("\u2591");
     }
+
+    //print the number
     printf("%d", numberAfterTheBar);
+
+    //goto next line
     puts("");
 }
 
+//this prints the empty line after each entry in the graph
 void printEmptyLineInGraph()
 {
+    //barlength is zero when its a empty line.
     printTopAndLastLineOfEntry(0);
 }
 
+//this prints the last line of the graph, the line with the corner
 void printLastLineOfGraph()
 {
+    //print the number of spaces before the corner
     int numberOfSpacesToKeep = getMaximumEnteredNameLength() + 2;
     for (int i = 0; i < numberOfSpacesToKeep; i++)
     {
         printf(" ");
     }
+
+    //prin the corner symbol
     printf("\u2514");
 
+    //get how many lines to print
     int numberOfBars = 80 - numberOfSpacesToKeep - 1;
+    //print those lines
     for (int i = 0; i < numberOfBars; i++)
     {
         printf("\u2500");
     }
+
+    //go to new line
     printf("\n");
 }
