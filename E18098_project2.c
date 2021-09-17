@@ -42,6 +42,8 @@ void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInH
 int convertHoursToMinutes(char *timeInHours);                                             // convert hours into minutes
 void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR);  // update existing record
 void checkIfStringIsNumerical(char *pointerToString);                                     // check if a string is numerical
+void sortData(int *chosenArray);                                                          // sort the dataset using the -m -t -p
+int getNumberOfRecordsInArrays();                                                         // returns the number of entries in the database
 
 int numberOfElementsInGraph = 10; // -l option given
 int isScaled = 0;                 // flag for --scaled
@@ -90,6 +92,26 @@ int main(int argc, char **argv)
         puts("No input files were given");
         printUsage();
     }
+
+    // SORTING
+    //select which array to sort
+    int *chosenArrayToSort;
+    if (isMeeting)
+    {
+        chosenArrayToSort = numberOfMeetingsARRAY;
+    }
+    else if (isParticipants)
+    {
+        chosenArrayToSort = numberOfParticipantsARRAY;
+    }
+    else if (isTime)
+    {
+        chosenArrayToSort = timeDurationInMinutesARRAY;
+    }
+
+    //sort data according to values in thatt array
+    sortData(chosenArrayToSort);
+    //after this point, only the names array and chosenArray are in order, other arrays dont mean anything because they were not sorted accordingly
 
     //just for testing
     for (int i = 1; i < MAX_ENTRIES; i++)
@@ -420,6 +442,7 @@ int convertHoursToMinutes(char *timeInHours)
     /* walk through other tokens */
     int round = 0; //keep the round number to know if its hours or minutes
     int timeInMinutes = 0;
+    int breakFlag = 0; //stop strtok on unwated strings, otherwise it goes onto empty strings and cause errors
     while (token != NULL)
     {
         checkIfStringIsNumerical(token);
@@ -430,8 +453,11 @@ int convertHoursToMinutes(char *timeInHours)
             break;
         case 1: //its minutes
             timeInMinutes += atoi(token);
+            breakFlag = 1; //dont want to read any other strings after this
             break;
         }
+        if (breakFlag)
+            break;
         round++;                   //increase the round number
         token = strtok(NULL, ":"); //go to next token
     }
@@ -452,4 +478,37 @@ void checkIfStringIsNumerical(char *pointerToString)
             exit(0);
         }
     }
+}
+
+void sortData(int *chosenArray)
+{
+    int didAnythingChange = 1;
+
+    while (didAnythingChange)
+    {
+        didAnythingChange = 0;
+        for (int i = 1; i < getNumberOfRecordsInArrays(); i++)
+        {
+            if (chosenArray[i] < chosenArray[i + 1])
+            {
+                //swap the elements in the chosenArray to sort
+                int tempINT = chosenArray[i];
+                chosenArray[i] = chosenArray[i + 1];
+                chosenArray[i + 1] = tempINT;
+
+                //then have to change the names accordingly too. otherwise we dont know which number is whose 😂
+                char tempName[MAX_NAME_LENGTH];
+                strcpy(tempName, namesARRAY[i]);
+                strcpy(namesARRAY[i], namesARRAY[i + 1]);
+                strcpy(namesARRAY[i + 1], tempName);
+
+                didAnythingChange = 1;
+            }
+        }
+    }
+}
+
+int getNumberOfRecordsInArrays()
+{
+    return getIndexOfEmptyElementInNamesArray() - 1; //because index 0 is not used
 }
