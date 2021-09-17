@@ -51,6 +51,8 @@ void printTopAndLastLineOfEntry(int barLength);                                 
 void printMiddleLineOfEntry(char *name, int numberAfterTheBar, int barLength);            // print the middle line in each entry
 void printEmptyLineInGraph();                                                             // print the empty line after each entry in graph
 void printLastLineOfGraph();                                                              // print the last line of graph
+int getBarLength(int index, int *chosenArray);                                            // get the length of the bar to print
+int getLengthOfNumber(int number);                                                        // get length of int number
 
 int numberOfElementsInGraph = 10; // -l option given
 int isScaled = 0;                 // flag for --scaled
@@ -121,10 +123,11 @@ int main(int argc, char **argv)
     //after this point, only the names array and chosenArray are in order, other arrays dont mean anything because they were not sorted accordingly
 
     //print the graphh
-    puts(""); //go to new line
-    int barLength = 10;
+    puts("");                                         //go to new line
     for (int i = 0; i < numberOfElementsInGraph; i++) //number of items according to -l
     {
+        int barLength = getBarLength(i + 1, chosenArrayToSort);
+
         printTopAndLastLineOfEntry(barLength);
         printMiddleLineOfEntry(namesARRAY[i + 1], chosenArrayToSort[i + 1], barLength);
         printTopAndLastLineOfEntry(barLength);
@@ -561,7 +564,7 @@ void printTopAndLastLineOfEntry(int barLength)
     printf("\u2502");
 
     //print the bar
-    for (int i = 0; i < barLength * 2; i++)
+    for (int i = 0; i < barLength; i++)
     {
         printf("\u2591");
     }
@@ -586,7 +589,7 @@ void printMiddleLineOfEntry(char *name, int numberAfterTheBar, int barLength)
     printf("\u2502");
 
     //print the bar
-    for (int i = 0; i < barLength * 2; i++)
+    for (int i = 0; i < barLength; i++)
     {
         printf("\u2591");
     }
@@ -615,7 +618,7 @@ void printLastLineOfGraph()
         printf(" ");
     }
 
-    //prin the corner symbol
+    //print the corner symbol
     printf("\u2514");
 
     //get how many lines to print
@@ -628,4 +631,32 @@ void printLastLineOfGraph()
 
     //go to new line
     printf("\n");
+}
+
+int getBarLength(int index, int *chosenArray)
+{
+    if (isScaled)
+    {
+        int numberOfSpacesToKeep = getMaximumEnteredNameLength() + 2;
+        int numberOfBars = 80 - numberOfSpacesToKeep - 1;
+        int maximumBarLength = numberOfBars - getLengthOfNumber(chosenArray[index]);
+        double numberOfBarsPerUnit = maximumBarLength / (double)chosenArray[1];
+        int numberOfBarsInThisEntry = (int)(numberOfBarsPerUnit * chosenArray[index]);
+        return numberOfBarsInThisEntry;
+    }
+    else
+    {
+        return 4;
+    }
+}
+
+int getLengthOfNumber(int number)
+{
+    int length = 0;
+    while (number != 0)
+    {
+        length++;
+        number = number / 10;
+    }
+    return length;
 }
