@@ -154,13 +154,14 @@ void parseOptions(int argc, char **argv)
                 {"meeting", no_argument, 0, 'm'},
                 {"time", no_argument, 0, 't'},
                 {"participants", no_argument, 0, 'p'},
+                {"help", no_argument, 0, 'h'},
                 {"scaled", no_argument, 0, 's'}, //this is the reason why getopt_long is used
                 {0, 0, 0, 0}};
 
         /* getopt_long stores the option index here. */
         int option_index = 0;
 
-        optionEntered = getopt_long(argc, argv, "l:mtps", long_options, &option_index); //get each option and their respective strings next to them
+        optionEntered = getopt_long(argc, argv, "l:mtpsh", long_options, &option_index); //get each option and their respective strings next to them
 
         /* Detect the end of the options. */
         if (optionEntered == -1) //if there are no options left
@@ -215,6 +216,9 @@ void parseOptions(int argc, char **argv)
         case 's': //--scaled
             isScaled = 1;
             break;
+        case 'h':
+            printUsage();
+            exit(0);
         case '?': //everything thats not specified (and has - sign before the word)
             if (optopt == 'l')
             {
