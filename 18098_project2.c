@@ -12,7 +12,6 @@ Notes (different from sample program):
 
 TODO:
 file wrong entries
-fix the barLength 
 
 Author : Fernando K.A. Ishan - E/18/098
 */
@@ -633,40 +632,60 @@ void printLastLineOfGraph()
     printf("\n");
 }
 
+//get the bar length according to --scaled or not
 int getBarLength(int index, int *chosenArray)
 {
+    //first find the maximum bar length, this changes because the name length changes and the maximum graph width is 80
     int numberOfSpacesToKeep = getMaximumEnteredNameLength() + 2;
     int numberOfBars = 80 - numberOfSpacesToKeep - 1;
     int maximumBarLength = numberOfBars - getLengthOfNumber(chosenArray[index]);
 
+    //if its scaled
     if (isScaled)
     {
+        //the maximum number in chosenArray is taken as the max length and scaled accordingly
 
+        //this give the number of bars for each unit of chosenArray() based on the maximum number of chosenArray()
         double numberOfBarsPerUnit = maximumBarLength / (double)chosenArray[1];
-        int numberOfBarsInThisEntry = (int)(numberOfBarsPerUnit * chosenArray[index]);
+        int numberOfBarsInThisEntry = (int)(numberOfBarsPerUnit * chosenArray[index]); //multiply that by current records chosenArray() number
+
         return numberOfBarsInThisEntry;
     }
     else
     {
+        //if not scaled
+
+        //find the sum of all the values
         int sumOfValues = 0;
         for (int i = 1; i < MAX_ENTRIES; i++)
         {
             sumOfValues += chosenArray[i];
         }
 
+        //get the number of bars per unit, this way, the whole bar means the sum of all the entries
         double numberOfBarsPerUnit = (double)maximumBarLength / sumOfValues;
+        //get the number of bars for this record
         int numberOfBarsForThisEntry = (int)(numberOfBarsPerUnit * chosenArray[index]);
+
+        //return the bar length
         return numberOfBarsForThisEntry;
     }
 }
 
+//get length of an int number
 int getLengthOfNumber(int number)
 {
+    //start with length 0
     int length = 0;
+    //repeat until number is not 0
     while (number != 0)
     {
+        //increment the length
         length++;
+        //divide number by 10 (remove one digit from the number)
         number = number / 10;
     }
+
+    //return the length
     return length;
 }
