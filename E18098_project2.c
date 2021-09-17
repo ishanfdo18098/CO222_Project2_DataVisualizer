@@ -480,15 +480,20 @@ void checkIfStringIsNumerical(char *pointerToString)
     }
 }
 
+//sort the records by the given array
 void sortData(int *chosenArray)
 {
+    //bubble sort
     int didAnythingChange = 1;
 
     while (didAnythingChange)
     {
+        //set flag to 0, to stop the loop eventually
         didAnythingChange = 0;
+        //iterate over all the elements except the last
         for (int i = 1; i < getNumberOfRecordsInArrays(); i++)
         {
+            //if the element next to the current one is larger than current one
             if (chosenArray[i] < chosenArray[i + 1])
             {
                 //swap the elements in the chosenArray to sort
@@ -502,12 +507,15 @@ void sortData(int *chosenArray)
                 strcpy(namesARRAY[i], namesARRAY[i + 1]);
                 strcpy(namesARRAY[i + 1], tempName);
 
+                //set flag to 1, then the loop will occur once again
+                //at some point, no changes will be made, then the loop ends
                 didAnythingChange = 1;
             }
         }
     }
 }
 
+//get the current number of records in the array
 int getNumberOfRecordsInArrays()
 {
     return getIndexOfEmptyElementInNamesArray() - 1; //because index 0 is not used
