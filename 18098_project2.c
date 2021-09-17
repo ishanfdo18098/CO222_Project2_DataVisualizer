@@ -195,7 +195,7 @@ void parseOptions(int argc, char **argv)
 
             if (numberEntered > 0)
             {
-                //if the number entered is more than 0 and less tham 10
+                //if the number entered is more than 0
                 numberOfElementsInGraph = numberEntered;
             }
             else if (numberEntered < 0)
