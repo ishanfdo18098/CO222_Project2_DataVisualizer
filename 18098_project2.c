@@ -181,7 +181,7 @@ void parseOptions(int argc, char **argv)
             //check if optarg is a numerical value
             for (int i = 0; i < strlen(optarg); i++)
             {
-                if (isdigit(optarg[i]) == 0)
+                if (isdigit(optarg[i]) == 0 && optarg[i] != '-') //if its not a digit and not negative sign
                 {
                     //if its not numerical , etc, -l abc
                     printf("Invalid options for [-l]\n");
