@@ -1,5 +1,11 @@
 #/bin/bash
 
+FILE=18098_project2.c
+if test -f "$FILE"; then
+    gcc 18098_project2.c -Wall
+    echo "Compiled $FILE"
+fi
+
 echo "Ashley_Parry,25,1:38:06
 Namal_Perera,12,2:24:56
 Namal_Perera,197,2:04:01
