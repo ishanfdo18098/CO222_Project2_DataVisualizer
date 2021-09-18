@@ -123,19 +123,19 @@ int main(int argc, char **argv)
     //after this point, only the names array and chosenArray are in order, other arrays dont mean anything because they were not sorted accordingly
 
     //print the graphh
-    puts("");                                         //go to new line
-    for (int i = 0; i < numberOfElementsInGraph; i++) //number of items according to -l
+    puts("");                                             //go to new line
+    for (int i = 1; i < numberOfElementsInGraph + 1; i++) //number of items according to -l
     {
         //if there is no record there, dont print it , and anything after that
-        if (namesARRAY[i + 1][0] == 0)
+        if (namesARRAY[i][0] == 0)
         {
             break;
         }
 
-        int barLength = getBarLength(i + 1, chosenArrayToSort);
+        int barLength = getBarLength(i, chosenArrayToSort);
 
         printTopAndLastLineOfEntry(barLength);
-        printMiddleLineOfEntry(namesARRAY[i + 1], chosenArrayToSort[i + 1], barLength);
+        printMiddleLineOfEntry(namesARRAY[i], chosenArrayToSort[i], barLength);
         printTopAndLastLineOfEntry(barLength);
         printEmptyLineInGraph();
     }
