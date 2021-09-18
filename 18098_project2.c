@@ -205,6 +205,10 @@ void parseOptions(int argc, char **argv)
                 printUsage();
                 exit(0);
             }
+            else if (numberEntered == 0) //samplev1 didnt print anything when -l is 0
+            {
+                exit(0);
+            }
             break;
         case 'm': // -m
             isMeeting = 1;
