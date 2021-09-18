@@ -11,6 +11,7 @@ Notes (different from sample program):
     - check if participant count is numerical
     - check if time is in valid format (Ashley_Parry,2,1a:38abc:06 also works in samplev1, and it just ignores those values)
     - invalid time formats lead to segmenation faults in samplev1, in this program it shows an error msg
+4) ./sample somename.csvLOG give cannot open given files when its not a csv file. Mine shows that its not a csv file
 
 Author : Fernando K.A. Ishan - E/18/098
 */
