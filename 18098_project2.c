@@ -5,13 +5,11 @@ Meeting Data Visualizer
 GITHUB - https://github.com/ishanfdo18098/CO222_Project2
 
 Notes (different from sample program):
-1) -l or --length both works. similar to that --meeting --time --participants work too.
-2) -h is there to print how to use it
-3) wrong entries in .csv handled. (samplev1 doesn't check for these)
+1) wrong entries in .csv handled. (samplev1 doesn't check for these)
     - check if participant count is numerical
     - check if time is in valid format (Ashley_Parry,2,1a:38abc:06 also works in samplev1, and it just ignores those values)
     - invalid time formats lead to segmenation faults in samplev1, in this program it shows an error msg
-4) ./sample somename.csvLOG give cannot open given files when its not a csv file. Mine shows that its not a csv file
+2) ./sample somename.csvLOG give cannot open given files when its not a csv file. Mine shows that its not a csv file
 
 Author : Fernando K.A. Ishan - E/18/098
 */
@@ -22,7 +20,7 @@ Author : Fernando K.A. Ishan - E/18/098
 #include <ctype.h>  //isdigit()
 
 //maximums
-#define MAX_ENTRIES 1000
+#define MAX_ENTRIES 1000 * 100 //1000 entries use about 0.203MB of memory
 #define MAX_NAME_LENGTH 200 + 1
 
 //this is kind of like the database 😂🤣
@@ -162,14 +160,13 @@ void parseOptions(int argc, char **argv)
                 {"meeting", no_argument, 0, 'm'},
                 {"time", no_argument, 0, 't'},
                 {"participants", no_argument, 0, 'p'},
-                {"help", no_argument, 0, 'h'},
                 {"scaled", no_argument, 0, 's'}, //this is the reason why getopt_long is used
                 {0, 0, 0, 0}};
 
         /* getopt_long stores the option index here. */
         int option_index = 0;
 
-        optionEntered = getopt_long(argc, argv, "l:mtpsh", long_options, &option_index); //get each option and their respective strings next to them
+        optionEntered = getopt_long(argc, argv, "l:mtps", long_options, &option_index); //get each option and their respective strings next to them
 
         /* Detect the end of the options. */
         if (optionEntered == -1) //if there are no options left
@@ -223,9 +220,6 @@ void parseOptions(int argc, char **argv)
         case 's': //--scaled
             isScaled = 1;
             break;
-        case 'h':
-            printUsage();
-            exit(0);
         case '?': //everything thats not specified (and has - sign before the word)
             if (optopt == 'l')
             {

@@ -389,14 +389,37 @@ else
     echo -e "Test 17 \033[0;31m FAILED---------------\033[0;0m"
 fi
 
-touch testEmpty.csv
-output=$(./a.out testEmpty.csv)
+rm meetingData.csv
+touch meetingData.csv
+output=$(./a.out meetingData.csv)
 output1='No data to process'
 if [ "$output" = "$output1" ]; then
     echo -e "Test 18 \033[0;32m PASS \033[0;0m"
 else
     echo -e "Test 18 \033[0;31m FAILED---------------\033[0;0m"
 fi
+echo "Ashley_Parry,25,1:38:06
+Namal_Perera,12,2:24:56
+Namal_Perera,197,2:04:01
+Prabath_Silva,6,0:16:46
+Bethany_William,9,1:49:12
+Ashley_Parry,15,1:33:26
+Namal_Perera,3,0:04:26
+Aaliya_Bruce,2,0:03:37
+Aaliya_Bruce,2,0:00:59
+Prabath_Silva,2,0:32:26
+Waruni_Fernando,15,2:38:42
+Raul_Oliver,7,1:12:20
+Aaliya_Bruce,2,0:00:54
+Dr_Rajitha_Karunarathna,3,0:15:16
+Raul_Oliver,3,0:02:10
+Jasper_Jensen,4,0:32:05
+Jasper_Jensen,4,0:08:37
+Namal_Perera,3,1:37:40
+Chamira_Perera,3,0:46:35
+Wasana_Tennekoon,8,0:40:13
+Dr_Kamal_Jayasooriya,14,0:51:41
+Raul_Oliver,2,2:05:05" > meetingData.csv
 
 output=$(./a.out -p 5)
 output1='Only .csv files should be given as inputs.'
@@ -437,8 +460,8 @@ Namal_Perera,3,1:37:40
 Chamira_Perera,3,0:46:35
 Wasana_Tennekoon,8,0:40:13
 Dr_Kamal_Jayasooriya,14,0:51:41
-Raul_Oliver,2,2:05:05" > testcsv.csv
-output=$(./a.out testcsv.csv)
+Raul_Oliver,2,2:05:05" > meetingData.csv
+output=$(./a.out meetingData.csv)
 output1='File/s contain wrong entries.'
 if [ "$output" = "$output1" ]; then
     echo -e "Test 21 \033[0;32m PASS \033[0;0m"
@@ -467,8 +490,8 @@ Namal_Perera,3,1:37:40
 Chamira_Perera,3,0:46:35
 Wasana_Tennekoon,8,0:40:13
 Dr_Kamal_Jayasooriya,14,0:51:41
-Raul_Oliver,2,2:05:05" > testcsv.csv
-output=$(./a.out testcsv.csv)
+Raul_Oliver,2,2:05:05" > meetingData.csv
+output=$(./a.out meetingData.csv)
 output1='
                          │░░░░░░░░░
  Namal_Perera            │░░░░░░░░░4
@@ -516,6 +539,29 @@ if [ "$output" = "$output1" ]; then
 else
     echo -e "Test 22 \033[0;31m FAILED---------------\033[0;0m"
 fi
+
+echo "Ashley_Parry,25,1:38:06
+Namal_Perera,12,2:24:56
+Namal_Perera,197,2:04:01
+Prabath_Silva,6,0:16:46
+Bethany_William,9,1:49:12
+Ashley_Parry,15,1:33:26
+Namal_Perera,3,0:04:26
+Aaliya_Bruce,2,0:03:37
+Aaliya_Bruce,2,0:00:59
+Prabath_Silva,2,0:32:26
+Waruni_Fernando,15,2:38:42
+Raul_Oliver,7,1:12:20
+Aaliya_Bruce,2,0:00:54
+Dr_Rajitha_Karunarathna,3,0:15:16
+Raul_Oliver,3,0:02:10
+Jasper_Jensen,4,0:32:05
+Jasper_Jensen,4,0:08:37
+Namal_Perera,3,1:37:40
+Chamira_Perera,3,0:46:35
+Wasana_Tennekoon,8,0:40:13
+Dr_Kamal_Jayasooriya,14,0:51:41
+Raul_Oliver,2,2:05:05" > meetingData.csv
 
 output=$(./a.out meetingData.csv -t)
 output1='
@@ -693,6 +739,7 @@ else
     echo -e "Test 27 \033[0;31m FAILED---------------\033[0;0m"
 fi
 
+
 echo "Ashley_Parryasfasdfasfasfasdfasfasfasdfasdfasdfsafsadfasfsafasdfasfadfasasdfsafasfasdfasfdfasfsa,25,1:38:06" > meetingData.csv
 output=$(./a.out meetingData.csv -p)
 output1='
@@ -702,11 +749,29 @@ output1='
                                                                                                   │
                                                                                                   └'
 if [ "$output" = "$output1" ]; then
-    echo -e "Test 27 \033[0;32m PASS \033[0;0m"
+    echo -e "Test 28 \033[0;32m PASS \033[0;0m"
 else
-    echo -e "Test 27 \033[0;31m FAILED---------------\033[0;0m"
+    echo -e "Test 28 \033[0;31m FAILED---------------\033[0;0m"
 fi
 
+
+output=$(./a.out meetingData.csv --scaledd)
+output1='Invalid option [--scaledd]
+usage: ./a.out [-l length] [-m | -t | -p] [--scaled] filename1 filename2 ..'
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 29 \033[0;32m PASS \033[0;0m"
+else
+    echo -e "Test 29 \033[0;31m FAILED---------------\033[0;0m"
+fi
+
+output=$(./a.out -h)
+output1='Invalid option [-h]
+usage: ./a.out [-l length] [-m | -t | -p] [--scaled] filename1 filename2 ..'
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 30 \033[0;32m PASS \033[0;0m"
+else
+    echo -e "Test 30 \033[0;31m FAILED---------------\033[0;0m"
+fi
 
 
 
