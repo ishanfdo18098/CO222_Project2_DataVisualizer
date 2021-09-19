@@ -2,11 +2,11 @@
 
 echo ""
 
-FILE=18098_project2.c
-if test -f "$FILE"; then
-    gcc 18098_project2.c -Wall
-    echo "Compiled $FILE"
-fi
+# FILE=18098_project2.c
+# if test -f "$FILE"; then
+#     gcc 18098_project2.c -Wall
+#     echo "Compiled $FILE"
+# fi
 
 echo "Ashley_Parry,25,1:38:06
 Namal_Perera,12,2:24:56
@@ -41,48 +41,7 @@ else
 fi
 
 output=$(./a.out meetingData.csv -m)
-output1='
-                         │░░░░░░░░░
- Namal_Perera            │░░░░░░░░░4
-                         │░░░░░░░░░
-                         │
-                         │░░░░░░░
- Aaliya_Bruce            │░░░░░░░3
-                         │░░░░░░░
-                         │
-                         │░░░░░░░
- Raul_Oliver             │░░░░░░░3
-                         │░░░░░░░
-                         │
-                         │░░░░
- Ashley_Parry            │░░░░2
-                         │░░░░
-                         │
-                         │░░░░
- Prabath_Silva           │░░░░2
-                         │░░░░
-                         │
-                         │░░░░
- Jasper_Jensen           │░░░░2
-                         │░░░░
-                         │
-                         │░░
- Bethany_William         │░░1
-                         │░░
-                         │
-                         │░░
- Waruni_Fernando         │░░1
-                         │░░
-                         │
-                         │░░
- Dr_Rajitha_Karunarathna │░░1
-                         │░░
-                         │
-                         │░░
- Chamira_Perera          │░░1
-                         │░░
-                         │
-                         └──────────────────────────────────────────────────────'
+output1=$(./samplev1 meetingData.csv -m)
 if [ "$output" = "$output1" ]; then
     echo -e "Test  2 \033[0;32m PASS \033[0;0m"
 else
@@ -99,28 +58,7 @@ else
 fi
 
 output=$(./a.out -l 5 meetingData.csv)
-output1='
-               │░░░░░░░░░░░
- Namal_Perera  │░░░░░░░░░░░4
-               │░░░░░░░░░░░
-               │
-               │░░░░░░░░
- Aaliya_Bruce  │░░░░░░░░3
-               │░░░░░░░░
-               │
-               │░░░░░░░░
- Raul_Oliver   │░░░░░░░░3
-               │░░░░░░░░
-               │
-               │░░░░░
- Ashley_Parry  │░░░░░2
-               │░░░░░
-               │
-               │░░░░░
- Prabath_Silva │░░░░░2
-               │░░░░░
-               │
-               └────────────────────────────────────────────────────────────────'
+output1=$(./samplev1 -l 5 meetingData.csv)
 if [ "$output" = "$output1" ]; then
     echo -e "Test  4 \033[0;32m PASS \033[0;0m"
 else
@@ -128,28 +66,7 @@ else
 fi
 
 output=$(./a.out -l 5 meetingData.csv -p)
-output1='
-                      │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
- Namal_Perera         │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░215
-                      │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-                      │
-                      │░░░░░░
- Ashley_Parry         │░░░░░░40
-                      │░░░░░░
-                      │
-                      │░░
- Waruni_Fernando      │░░15
-                      │░░
-                      │
-                      │░░
- Dr_Kamal_Jayasooriya │░░14
-                      │░░
-                      │
-                      │░
- Raul_Oliver          │░12
-                      │░
-                      │
-                      └─────────────────────────────────────────────────────────'
+output1=$(./samplev1 -l 5 meetingData.csv -p)
 if [ "$output" = "$output1" ]; then
     echo -e "Test  5 \033[0;32m PASS \033[0;0m"
 else
@@ -191,56 +108,7 @@ else
 fi
 
 output=$(./a.out -l 100 meetingData.csv)
-output1='
-                         │░░░░░░░░░
- Namal_Perera            │░░░░░░░░░4
-                         │░░░░░░░░░
-                         │
-                         │░░░░░░░
- Aaliya_Bruce            │░░░░░░░3
-                         │░░░░░░░
-                         │
-                         │░░░░░░░
- Raul_Oliver             │░░░░░░░3
-                         │░░░░░░░
-                         │
-                         │░░░░
- Ashley_Parry            │░░░░2
-                         │░░░░
-                         │
-                         │░░░░
- Prabath_Silva           │░░░░2
-                         │░░░░
-                         │
-                         │░░░░
- Jasper_Jensen           │░░░░2
-                         │░░░░
-                         │
-                         │░░
- Bethany_William         │░░1
-                         │░░
-                         │
-                         │░░
- Waruni_Fernando         │░░1
-                         │░░
-                         │
-                         │░░
- Dr_Rajitha_Karunarathna │░░1
-                         │░░
-                         │
-                         │░░
- Chamira_Perera          │░░1
-                         │░░
-                         │
-                         │░░
- Wasana_Tennekoon        │░░1
-                         │░░
-                         │
-                         │░░
- Dr_Kamal_Jayasooriya    │░░1
-                         │░░
-                         │
-                         └──────────────────────────────────────────────────────'
+output1=$(./samplev1 -l 100 meetingData.csv)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 10 \033[0;32m PASS \033[0;0m"
 else
@@ -266,48 +134,7 @@ else
 fi
 
 output=$(./a.out meetingData.csv meetingData.csv)
-output1='
-                         │░░░░░░░░░
- Namal_Perera            │░░░░░░░░░8
-                         │░░░░░░░░░
-                         │
-                         │░░░░░░░
- Aaliya_Bruce            │░░░░░░░6
-                         │░░░░░░░
-                         │
-                         │░░░░░░░
- Raul_Oliver             │░░░░░░░6
-                         │░░░░░░░
-                         │
-                         │░░░░
- Ashley_Parry            │░░░░4
-                         │░░░░
-                         │
-                         │░░░░
- Prabath_Silva           │░░░░4
-                         │░░░░
-                         │
-                         │░░░░
- Jasper_Jensen           │░░░░4
-                         │░░░░
-                         │
-                         │░░
- Bethany_William         │░░2
-                         │░░
-                         │
-                         │░░
- Waruni_Fernando         │░░2
-                         │░░
-                         │
-                         │░░
- Dr_Rajitha_Karunarathna │░░2
-                         │░░
-                         │
-                         │░░
- Chamira_Perera          │░░2
-                         │░░
-                         │
-                         └──────────────────────────────────────────────────────'
+output1=$(./samplev1 meetingData.csv meetingData.csv)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 13 \033[0;32m PASS \033[0;0m"
 else
@@ -315,48 +142,7 @@ else
 fi
 
 output=$(./a.out --scaled meetingData.csv)
-output1='
-                         │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
- Namal_Perera            │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░4
-                         │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-                         │
-                         │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
- Aaliya_Bruce            │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░3
-                         │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-                         │
-                         │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
- Raul_Oliver             │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░3
-                         │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-                         │
-                         │░░░░░░░░░░░░░░░░░░░░░░░░░░
- Ashley_Parry            │░░░░░░░░░░░░░░░░░░░░░░░░░░2
-                         │░░░░░░░░░░░░░░░░░░░░░░░░░░
-                         │
-                         │░░░░░░░░░░░░░░░░░░░░░░░░░░
- Prabath_Silva           │░░░░░░░░░░░░░░░░░░░░░░░░░░2
-                         │░░░░░░░░░░░░░░░░░░░░░░░░░░
-                         │
-                         │░░░░░░░░░░░░░░░░░░░░░░░░░░
- Jasper_Jensen           │░░░░░░░░░░░░░░░░░░░░░░░░░░2
-                         │░░░░░░░░░░░░░░░░░░░░░░░░░░
-                         │
-                         │░░░░░░░░░░░░░
- Bethany_William         │░░░░░░░░░░░░░1
-                         │░░░░░░░░░░░░░
-                         │
-                         │░░░░░░░░░░░░░
- Waruni_Fernando         │░░░░░░░░░░░░░1
-                         │░░░░░░░░░░░░░
-                         │
-                         │░░░░░░░░░░░░░
- Dr_Rajitha_Karunarathna │░░░░░░░░░░░░░1
-                         │░░░░░░░░░░░░░
-                         │
-                         │░░░░░░░░░░░░░
- Chamira_Perera          │░░░░░░░░░░░░░1
-                         │░░░░░░░░░░░░░
-                         │
-                         └──────────────────────────────────────────────────────'
+output1=$(./samplev1 --scaled meetingData.csv)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 14 \033[0;32m PASS \033[0;0m"
 else
@@ -492,48 +278,7 @@ Wasana_Tennekoon,8,0:40:13
 Dr_Kamal_Jayasooriya,14,0:51:41
 Raul_Oliver,2,2:05:05" > meetingData.csv
 output=$(./a.out meetingData.csv)
-output1='
-                         │░░░░░░░░░
- Namal_Perera            │░░░░░░░░░4
-                         │░░░░░░░░░
-                         │
-                         │░░░░░░░
- Aaliya_Bruce            │░░░░░░░3
-                         │░░░░░░░
-                         │
-                         │░░░░░░░
- Raul_Oliver             │░░░░░░░3
-                         │░░░░░░░
-                         │
-                         │░░░░
- Ashley_Parry            │░░░░2
-                         │░░░░
-                         │
-                         │░░░░
- Prabath_Silva           │░░░░2
-                         │░░░░
-                         │
-                         │░░░░
- Jasper_Jensen           │░░░░2
-                         │░░░░
-                         │
-                         │░░
- Bethany_William         │░░1
-                         │░░
-                         │
-                         │░░
- Waruni_Fernando         │░░1
-                         │░░
-                         │
-                         │░░
- Dr_Rajitha_Karunarathna │░░1
-                         │░░
-                         │
-                         │░░
- Chamira_Perera          │░░1
-                         │░░
-                         │
-                         └──────────────────────────────────────────────────────'
+output1=$(./samplev1 meetingData.csv)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 22 \033[0;32m PASS \033[0;0m"
 else
@@ -564,48 +309,7 @@ Dr_Kamal_Jayasooriya,14,0:51:41
 Raul_Oliver,2,2:05:05" > meetingData.csv
 
 output=$(./a.out meetingData.csv -t)
-output1='
-                      │░░░░░░░░░░░░░░░
- Namal_Perera         │░░░░░░░░░░░░░░░369
-                      │░░░░░░░░░░░░░░░
-                      │
-                      │░░░░░░░░
- Raul_Oliver          │░░░░░░░░199
-                      │░░░░░░░░
-                      │
-                      │░░░░░░░░
- Ashley_Parry         │░░░░░░░░191
-                      │░░░░░░░░
-                      │
-                      │░░░░░░
- Waruni_Fernando      │░░░░░░158
-                      │░░░░░░
-                      │
-                      │░░░░
- Bethany_William      │░░░░109
-                      │░░░░
-                      │
-                      │░░
- Dr_Kamal_Jayasooriya │░░51
-                      │░░
-                      │
-                      │░░
- Prabath_Silva        │░░48
-                      │░░
-                      │
-                      │░
- Chamira_Perera       │░46
-                      │░
-                      │
-                      │░
- Jasper_Jensen        │░40
-                      │░
-                      │
-                      │░
- Wasana_Tennekoon     │░40
-                      │░
-                      │
-                      └─────────────────────────────────────────────────────────'
+output1=$(./samplev1 meetingData.csv -t)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 23 \033[0;32m PASS \033[0;0m"
 else
@@ -613,48 +317,7 @@ else
 fi
 
 output=$(./a.out meetingData.csv -t --scaled)
-output1='
-                      │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
- Namal_Perera         │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░369
-                      │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-                      │
-                      │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
- Raul_Oliver          │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░199
-                      │░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-                      │
-                      │░░░░░░░░░░░░░░░░░░░░░░░░░░░
- Ashley_Parry         │░░░░░░░░░░░░░░░░░░░░░░░░░░░191
-                      │░░░░░░░░░░░░░░░░░░░░░░░░░░░
-                      │
-                      │░░░░░░░░░░░░░░░░░░░░░░░
- Waruni_Fernando      │░░░░░░░░░░░░░░░░░░░░░░░158
-                      │░░░░░░░░░░░░░░░░░░░░░░░
-                      │
-                      │░░░░░░░░░░░░░░░
- Bethany_William      │░░░░░░░░░░░░░░░109
-                      │░░░░░░░░░░░░░░░
-                      │
-                      │░░░░░░░
- Dr_Kamal_Jayasooriya │░░░░░░░51
-                      │░░░░░░░
-                      │
-                      │░░░░░░░
- Prabath_Silva        │░░░░░░░48
-                      │░░░░░░░
-                      │
-                      │░░░░░░
- Chamira_Perera       │░░░░░░46
-                      │░░░░░░
-                      │
-                      │░░░░░
- Jasper_Jensen        │░░░░░40
-                      │░░░░░
-                      │
-                      │░░░░░
- Wasana_Tennekoon     │░░░░░40
-                      │░░░░░
-                      │
-                      └─────────────────────────────────────────────────────────'
+output1=$(./samplev1 meetingData.csv -t --scaled)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 24 \033[0;32m PASS \033[0;0m"
 else
@@ -662,48 +325,7 @@ else
 fi
 
 output=$(./a.out meetingData.csv  meetingData.csv  meetingData.csv)
-output1='
-                         │░░░░░░░░░
- Namal_Perera            │░░░░░░░░░12
-                         │░░░░░░░░░
-                         │
-                         │░░░░░░░
- Aaliya_Bruce            │░░░░░░░9
-                         │░░░░░░░
-                         │
-                         │░░░░░░░
- Raul_Oliver             │░░░░░░░9
-                         │░░░░░░░
-                         │
-                         │░░░░
- Ashley_Parry            │░░░░6
-                         │░░░░
-                         │
-                         │░░░░
- Prabath_Silva           │░░░░6
-                         │░░░░
-                         │
-                         │░░░░
- Jasper_Jensen           │░░░░6
-                         │░░░░
-                         │
-                         │░░
- Bethany_William         │░░3
-                         │░░
-                         │
-                         │░░
- Waruni_Fernando         │░░3
-                         │░░
-                         │
-                         │░░
- Dr_Rajitha_Karunarathna │░░3
-                         │░░
-                         │
-                         │░░
- Chamira_Perera          │░░3
-                         │░░
-                         │
-                         └──────────────────────────────────────────────────────'
+output1=$(./samplev1 meetingData.csv  meetingData.csv  meetingData.csv)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 25 \033[0;32m PASS \033[0;0m"
 else
@@ -713,12 +335,7 @@ fi
 
 echo "Ashley_Parryasfasdfasfasfasdfasfasfasdfasdfasdfsafsadfasfsafasdfasfadfasasdfsafasfasdfasfdfasfsa,25,1:38:06" > meetingData.csv
 output=$(./a.out meetingData.csv)
-output1='
-                                                                                                  │
- Ashley_Parryasfasdfasfasfasdfasfasfasdfasdfasdfsafsadfasfsafasdfasfadfasasdfsafasfasdfasfdfasfsa │1
-                                                                                                  │
-                                                                                                  │
-                                                                                                  └'
+output1=$(./samplev1 meetingData.csv)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 26 \033[0;32m PASS \033[0;0m"
 else
@@ -773,7 +390,57 @@ else
     echo -e "Test 30 \033[0;31m FAILED---------------\033[0;0m"
 fi
 
+output=$(./a.out -file.csv)
+output1='Invalid option [-file.csv]
+usage: ./a.out [-l length] [-m | -t | -p] [--scaled] filename1 filename2 ..'
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 31 \033[0;32m PASS \033[0;0m"
+else
+    echo -e "Test 31 \033[0;31m FAILED---------------\033[0;0m"
+fi
 
+output=$(./a.out -someotherFile.csv)
+output1='Invalid option [-someotherFile.csv]
+usage: ./a.out [-l length] [-m | -t | -p] [--scaled] filename1 filename2 ..'
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 32 \033[0;32m PASS \033[0;0m"
+else
+    echo -e "Test 32 \033[0;31m FAILED---------------\033[0;0m"
+fi
+
+output=$(./a.out 10 -l)
+output1='Not enough options for [-l]
+usage: ./a.out [-l length] [-m | -t | -p] [--scaled] filename1 filename2 ..'
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 33 \033[0;32m PASS \033[0;0m"
+else
+    echo -e "Test 33 \033[0;31m FAILED---------------\033[0;0m"
+fi
+
+output=$(./a.out unnamedFile.csv -l)
+output1='Not enough options for [-l]
+usage: ./a.out [-l length] [-m | -t | -p] [--scaled] filename1 filename2 ..'
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 34 \033[0;32m PASS \033[0;0m"
+else
+    echo -e "Test 34 \033[0;31m FAILED---------------\033[0;0m"
+fi
+
+output=$(./a.out -l 2 MEETINGDATA.CSV)
+output1='Only .csv files should be given as inputs.'
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 35 \033[0;32m PASS \033[0;0m"
+else
+    echo -e "Test 35 \033[0;31m FAILED---------------\033[0;0m"
+fi
+
+output=$(./a.out meetingData.csv)
+output1=$(./samplev1 meetingData.csv)
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 36 \033[0;32m PASS \033[0;0m"
+else
+    echo -e "Test 36 \033[0;31m FAILED---------------\033[0;0m"
+fi
 
 
 
