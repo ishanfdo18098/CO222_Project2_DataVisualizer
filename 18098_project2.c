@@ -147,6 +147,40 @@ int main(int argc, char **argv)
 //check if more than 1 graphing option is given (-m -t -p)
 void parseOptions(int argc, char **argv)
 {
+    //check if all the options are valid
+    //had to use whole new thing because the error log showed the argument entered, getopt only returns a char
+    //but need to echo the whole word ( -abc vs -a )
+    char optionsPossible[5][10] = {"-m", "-t", "-p", "--scaled", "-l"};
+    for (int i = 0; i < argc; i++)
+    {
+        if (argv[i][0] != '-') // if its not a option, dont check it
+        {
+            continue;
+        }
+
+        //check for matches
+        int matchFound = 0;
+        for (int j = 0; j < 5; j++) //loop over all the possible words
+        {
+            if (strcmp(argv[i], optionsPossible[j]) == 0) //if it matches
+            {
+                matchFound = 1; //make the flag 1
+            }
+        }
+
+        if (matchFound == 0) //if there are no matches for that option
+        {
+            printf("Invalid option [%s]\n", argv[i]); //show error, %s is the whole reason for using this seperate part for checking those options
+            printUsage();
+            exit(0);
+        }
+
+        if (strcmp(argv[i], "-l") == 0) //if its -l, you dont have to check the next word as its checked in getopt anyway
+        {
+            i++;
+        }
+    }
+
     // https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Option-Example.html
     int optionEntered;
     opterr = 0; //disable echoing that there is an error
@@ -229,40 +263,6 @@ void parseOptions(int argc, char **argv)
                 exit(0);
             }
             break;
-        }
-    }
-
-    //check if all the options are valid
-    //had to use whole new thing because the error log showed the argument entered, getopt only returns a char
-    //but need to echo the whole word ( -abc vs -a )
-    char optionsPossible[5][10] = {"-m", "-t", "-p", "--scaled", "-l"};
-    for (int i = 0; i < argc; i++)
-    {
-        if (argv[i][0] != '-') // if its not a option, dont check it
-        {
-            continue;
-        }
-
-        //check for matches
-        int matchFound = 0;
-        for (int j = 0; j < 5; j++) //loop over all the possible words
-        {
-            if (strcmp(argv[i], optionsPossible[j]) == 0) //if it matches
-            {
-                matchFound = 1; //make the flag 1
-            }
-        }
-
-        if (matchFound == 0) //if there are no matches for that option
-        {
-            printf("Invalid option [%s]\n", argv[i]); //show error, %s is the whole reason for using this seperate part for checking those options
-            printUsage();
-            exit(0);
-        }
-
-        if (strcmp(argv[i], "-l") == 0) //if its -l, you dont have to check the next word as its checked in getopt anyway
-        {
-            i++;
         }
     }
 
