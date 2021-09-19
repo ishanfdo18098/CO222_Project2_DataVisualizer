@@ -1,5 +1,7 @@
 #/bin/bash
 
+echo ""
+
 FILE=18098_project2.c
 if test -f "$FILE"; then
     gcc 18098_project2.c -Wall
@@ -33,9 +35,9 @@ output=$(./a.out)
 output1='No input files were given
 usage: ./a.out [-l length] [-m | -t | -p] [--scaled] filename1 filename2 ..'
 if [ "$output" = "$output1" ]; then
-    echo -e "Test 1 \033[0;32m PASS \033[0;0m"
+    echo -e "Test  1 \033[0;32m PASS \033[0;0m"
 else
-    echo -e "Test 1 \033[0;31m FAILED---------------\033[0;0m"
+    echo -e "Test  1 \033[0;31m FAILED---------------\033[0;0m"
 fi
 
 output=$(./a.out meetingData.csv -m)
@@ -82,18 +84,18 @@ output1='
                          │
                          └──────────────────────────────────────────────────────'
 if [ "$output" = "$output1" ]; then
-    echo -e "Test 2 \033[0;32m PASS \033[0;0m"
+    echo -e "Test  2 \033[0;32m PASS \033[0;0m"
 else
-    echo -e "Test 2 \033[0;31m FAILED---------------\033[0;0m"
+    echo -e "Test  2 \033[0;31m FAILED---------------\033[0;0m"
 fi
 
 output=$(./a.out -l 5)
 output1='No input files were given
 usage: ./a.out [-l length] [-m | -t | -p] [--scaled] filename1 filename2 ..'
 if [ "$output" = "$output1" ]; then
-    echo -e "Test 3 \033[0;32m PASS \033[0;0m"
+    echo -e "Test  3 \033[0;32m PASS \033[0;0m"
 else
-    echo -e "Test 3 \033[0;31m FAILED---------------\033[0;0m"
+    echo -e "Test  3 \033[0;31m FAILED---------------\033[0;0m"
 fi
 
 output=$(./a.out -l 5 meetingData.csv)
@@ -120,9 +122,9 @@ output1='
                │
                └────────────────────────────────────────────────────────────────'
 if [ "$output" = "$output1" ]; then
-    echo -e "Test 4 \033[0;32m PASS \033[0;0m"
+    echo -e "Test  4 \033[0;32m PASS \033[0;0m"
 else
-    echo -e "Test 4 \033[0;31m FAILED---------------\033[0;0m"
+    echo -e "Test  4 \033[0;31m FAILED---------------\033[0;0m"
 fi
 
 output=$(./a.out -l 5 meetingData.csv -p)
@@ -149,43 +151,43 @@ output1='
                       │
                       └─────────────────────────────────────────────────────────'
 if [ "$output" = "$output1" ]; then
-    echo -e "Test 5 \033[0;32m PASS \033[0;0m"
+    echo -e "Test  5 \033[0;32m PASS \033[0;0m"
 else
-    echo -e "Test 5 \033[0;31m FAILED---------------\033[0;0m"
+    echo -e "Test  5 \033[0;31m FAILED---------------\033[0;0m"
 fi
 
 output=$(./a.out -l -5)
 output1='Invalid option(negative) for [-l]
 usage: ./a.out [-l length] [-m | -t | -p] [--scaled] filename1 filename2 ..'
 if [ "$output" = "$output1" ]; then
-    echo -e "Test 6 \033[0;32m PASS \033[0;0m"
+    echo -e "Test  6 \033[0;32m PASS \033[0;0m"
 else
-    echo -e "Test 6 \033[0;31m FAILED---------------\033[0;0m"
+    echo -e "Test  6 \033[0;31m FAILED---------------\033[0;0m"
 fi
 
 output=$(./a.out meeting)
 output1='Only .csv files should be given as inputs.'
 if [ "$output" = "$output1" ]; then
-    echo -e "Test 7 \033[0;32m PASS \033[0;0m"
+    echo -e "Test  7 \033[0;32m PASS \033[0;0m"
 else
-    echo -e "Test 7 \033[0;31m FAILED---------------\033[0;0m"
+    echo -e "Test  7 \033[0;31m FAILED---------------\033[0;0m"
 fi
 
 output=$(./a.out -m -t)
 output1='Cannot plot multiple parameters in same graph.
 usage: ./a.out [-l length] [-m | -t | -p] [--scaled] filename1 filename2 ..'
 if [ "$output" = "$output1" ]; then
-    echo -e "Test 8 \033[0;32m PASS \033[0;0m"
+    echo -e "Test  8 \033[0;32m PASS \033[0;0m"
 else
-    echo -e "Test 8 \033[0;31m FAILED---------------\033[0;0m"
+    echo -e "Test  8 \033[0;31m FAILED---------------\033[0;0m"
 fi
 
 output=$(./a.out -l 0)
 output1=''
 if [ "$output" = "$output1" ]; then
-    echo -e "Test 9 \033[0;32m PASS \033[0;0m"
+    echo -e "Test  9 \033[0;32m PASS \033[0;0m"
 else
-    echo -e "Test 9 \033[0;31m FAILED---------------\033[0;0m"
+    echo -e "Test  9 \033[0;31m FAILED---------------\033[0;0m"
 fi
 
 output=$(./a.out -l 100 meetingData.csv)
@@ -661,3 +663,80 @@ if [ "$output" = "$output1" ]; then
 else
     echo -e "Test 25 \033[0;31m FAILED---------------\033[0;0m"
 fi
+
+
+echo "Ashley_Parryasfasdfasfasfasdfasfasfasdfasdfasdfsafsadfasfsafasdfasfadfasasdfsafasfasdfasfdfasfsa,25,1:38:06" > meetingData.csv
+output=$(./a.out meetingData.csv)
+output1='
+                                                                                                  │
+ Ashley_Parryasfasdfasfasfasdfasfasfasdfasdfasdfsafsadfasfsafasdfasfadfasasdfsafasfasdfasfdfasfsa │1
+                                                                                                  │
+                                                                                                  │
+                                                                                                  └'
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 26 \033[0;32m PASS \033[0;0m"
+else
+    echo -e "Test 26 \033[0;31m FAILED---------------\033[0;0m"
+fi
+
+echo "Ashley_Parryasfasdfasfasfasdfasfasfasdfasdfasdfsafsadfasfsafasdfasfadfasasdfsafasfasdfasfdfasfsa,25,1:38:06" > meetingData.csv
+output=$(./a.out meetingData.csv -t)
+output1='
+                                                                                                  │
+ Ashley_Parryasfasdfasfasfasdfasfasfasdfasdfasdfsafsadfasfsafasdfasfadfasasdfsafasfasdfasfdfasfsa │98
+                                                                                                  │
+                                                                                                  │
+                                                                                                  └'
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 27 \033[0;32m PASS \033[0;0m"
+else
+    echo -e "Test 27 \033[0;31m FAILED---------------\033[0;0m"
+fi
+
+echo "Ashley_Parryasfasdfasfasfasdfasfasfasdfasdfasdfsafsadfasfsafasdfasfadfasasdfsafasfasdfasfdfasfsa,25,1:38:06" > meetingData.csv
+output=$(./a.out meetingData.csv -p)
+output1='
+                                                                                                  │
+ Ashley_Parryasfasdfasfasfasdfasfasfasdfasdfasdfsafsadfasfsafasdfasfadfasasdfsafasfasdfasfdfasfsa │25
+                                                                                                  │
+                                                                                                  │
+                                                                                                  └'
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 27 \033[0;32m PASS \033[0;0m"
+else
+    echo -e "Test 27 \033[0;31m FAILED---------------\033[0;0m"
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+echo "Ashley_Parry,25,1:38:06
+Namal_Perera,12,2:24:56
+Namal_Perera,197,2:04:01
+Prabath_Silva,6,0:16:46
+Bethany_William,9,1:49:12
+Ashley_Parry,15,1:33:26
+Namal_Perera,3,0:04:26
+Aaliya_Bruce,2,0:03:37
+Aaliya_Bruce,2,0:00:59
+Prabath_Silva,2,0:32:26
+Waruni_Fernando,15,2:38:42
+Raul_Oliver,7,1:12:20
+Aaliya_Bruce,2,0:00:54
+Dr_Rajitha_Karunarathna,3,0:15:16
+Raul_Oliver,3,0:02:10
+Jasper_Jensen,4,0:32:05
+Jasper_Jensen,4,0:08:37
+Namal_Perera,3,1:37:40
+Chamira_Perera,3,0:46:35
+Wasana_Tennekoon,8,0:40:13
+Dr_Kamal_Jayasooriya,14,0:51:41
+Raul_Oliver,2,2:05:05" > meetingData.csv
