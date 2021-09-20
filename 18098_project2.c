@@ -32,6 +32,8 @@ int numberOfParticipantsARRAY[MAX_ENTRIES] = {};
 int timeDurationInMinutesARRAY[MAX_ENTRIES] = {};
 
 void parseOptions(int argc, char **argv);                                                 // option parsing
+void processFiles(int argc, char **argv);                                                 // process the files
+void printGraph(int *chosenArrayToSort);                                                  // print the graph
 void printUsage();                                                                        // print how to use the program
 void readFileThenAddThemToArrays(char *fileName);                                         // read from file
 int getIndexOfNameInArray(char *namePointer);                                             // get the index of the name in the array
@@ -65,52 +67,12 @@ int main(int argc, char **argv)
     //parse the options -m -t -p -l
     parseOptions(argc, argv);
 
-    //process the files
-    int fileCount = 0; //keep a count of files to know if there are 0 files - > error
-    for (int index = 1; index < argc; index++)
-    {
-        //renaming for easiness of reading and writing
-        char *currentFileName = &argv[index][0];
-
-        if (strcmp(currentFileName, "-l") == 0) //if its -l, dont read the next string that could be the value for -l
-        {
-            index++;
-            continue;
-        }
-
-        if (currentFileName[0] == '-') //if its some other option
-        {
-            continue;
-        }
-
-        // check if the file format is correct
-        char *formatOfCurrentFile = &currentFileName[strlen(currentFileName) - 4]; //get the pointer to the format of file
-        if (strcmp(formatOfCurrentFile, ".csv") != 0)                              //check if file format is .csv
-        {
-            //if its not .csv
-            puts("Only .csv files should be given as inputs.");
-            exit(0);
-        }
-        else
-        {
-            //if its .csv
-            fileCount++;
-            //read the file line by line and copy the data into respective arrays
-            readFileThenAddThemToArrays(currentFileName);
-        }
-    }
-
-    //if there are no files entered as args
-    if (fileCount == 0)
-    {
-        puts("No input files were given");
-        printUsage();
-        exit(0);
-    }
+    //process the files that are inputted by the user
+    processFiles(argc, argv);
 
     // SORTING
     //select which array to sort
-    int *chosenArrayToSort;
+    int *chosenArrayToSort; // which array is chosen by user ?
     if (isMeeting)
     {
         chosenArrayToSort = numberOfMeetingsARRAY;
@@ -123,29 +85,11 @@ int main(int argc, char **argv)
     {
         chosenArrayToSort = timeDurationInMinutesARRAY;
     }
-
     //sort data according to values in thatt array
     sortData(chosenArrayToSort);
     //after this point, only the names array and chosenArray are in order, other arrays dont mean anything because they were not sorted accordingly
 
-    //print the graphh
-    puts("");                                             //go to new line
-    for (int i = 1; i < numberOfElementsInGraph + 1; i++) //number of items according to -l
-    {
-        //if there is no record there, dont print it , and anything after that
-        if (namesARRAY[i][0] == 0)
-        {
-            break;
-        }
-
-        int barLength = getBarLength(i, chosenArrayToSort);
-
-        printTopAndLastLineOfEntry(barLength);
-        printMiddleLineOfEntry(namesARRAY[i], chosenArrayToSort[i], barLength);
-        printTopAndLastLineOfEntry(barLength);
-        printEmptyLineInGraph();
-    }
-    printLastLineOfGraph();
+    printGraph(chosenArrayToSort);
 
     return 0;
 }
@@ -194,8 +138,8 @@ void parseOptions(int argc, char **argv)
             case 3: //--scaled
                 isScaled = 1;
                 break;
-            case 4:                // -l with or without another value
-                if (i + 1 >= argc) 
+            case 4: // -l with or without another value
+                if (i + 1 >= argc)
                 {
                     // -l is there but without any number in front of it
                     printf("Not enough options for [-l]\n");
@@ -263,6 +207,74 @@ void parseOptions(int argc, char **argv)
         printUsage();
         exit(0);
     }
+}
+
+void processFiles(int argc, char **argv)
+{
+    //process the files
+    int fileCount = 0; //keep a count of files to know if there are 0 files - > error
+    for (int index = 1; index < argc; index++)
+    {
+        //renaming for easiness of reading and writing
+        char *currentFileName = &argv[index][0];
+
+        if (strcmp(currentFileName, "-l") == 0) //if its -l, dont read the next string that could be the value for -l
+        {
+            index++;
+            continue;
+        }
+
+        if (currentFileName[0] == '-') //if its some other option
+        {
+            continue;
+        }
+
+        // check if the file format is correct
+        char *formatOfCurrentFile = &currentFileName[strlen(currentFileName) - 4]; //get the pointer to the format of file
+        if (strcmp(formatOfCurrentFile, ".csv") != 0)                              //check if file format is .csv
+        {
+            //if its not .csv
+            puts("Only .csv files should be given as inputs.");
+            exit(0);
+        }
+        else
+        {
+            //if its .csv
+            fileCount++;
+            //read the file line by line and copy the data into respective arrays
+            readFileThenAddThemToArrays(currentFileName);
+        }
+    }
+
+    //if there are no files entered as args
+    if (fileCount == 0)
+    {
+        puts("No input files were given");
+        printUsage();
+        exit(0);
+    }
+}
+
+void printGraph(int *chosenArrayToSort)
+{
+    //print the graphh
+    puts("");                                             //go to new line
+    for (int i = 1; i < numberOfElementsInGraph + 1; i++) //number of items according to -l
+    {
+        //if there is no record there, dont print it , and anything after that
+        if (namesARRAY[i][0] == 0)
+        {
+            break;
+        }
+
+        int barLength = getBarLength(i, chosenArrayToSort);
+
+        printTopAndLastLineOfEntry(barLength);
+        printMiddleLineOfEntry(namesARRAY[i], chosenArrayToSort[i], barLength);
+        printTopAndLastLineOfEntry(barLength);
+        printEmptyLineInGraph();
+    }
+    printLastLineOfGraph();
 }
 
 //print how to use the program, the program name is also printed in it

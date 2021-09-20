@@ -248,7 +248,7 @@ Wasana_Tennekoon,8,0:40:13
 Dr_Kamal_Jayasooriya,14,0:51:41
 Raul_Oliver,2,2:05:05" > meetingData.csv
 output=$(./a.out meetingData.csv)
-output1='File/s contain wrong entries.'
+output1=$(./samplev1 meetingData.csv)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 21 \033[0;32m PASS \033[0;0m file with empty line"
 else
@@ -344,12 +344,7 @@ fi
 
 echo "Ashley_Parryasfasdfasfasfasdfasfasfasdfasdfasdfsafsadfasfsafasdfasfadfasasdfsafasfasdfasfdfasfsa,25,1:38:06" > meetingData.csv
 output=$(./a.out meetingData.csv -t)
-output1='
-                                                                                                  │
- Ashley_Parryasfasdfasfasfasdfasfasfasdfasdfasdfsafsadfasfsafasdfasfadfasasdfsafasfasdfasfdfasfsa │98
-                                                                                                  │
-                                                                                                  │
-                                                                                                  └'
+output1=$(./samplev1 meetingData.csv -t)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 27 \033[0;32m PASS \033[0;0m long name -t"
 else
@@ -359,12 +354,7 @@ fi
 
 echo "Ashley_Parryasfasdfasfasfasdfasfasfasdfasdfasdfsafsadfasfsafasdfasfadfasasdfsafasfasdfasfdfasfsa,25,1:38:06" > meetingData.csv
 output=$(./a.out meetingData.csv -p)
-output1='
-                                                                                                  │
- Ashley_Parryasfasdfasfasfasdfasfasfasdfasdfasdfsafsadfasfsafasdfasfadfasasdfsafasfasdfasfdfasfsa │25
-                                                                                                  │
-                                                                                                  │
-                                                                                                  └'
+output1=$(./samplev1 meetingData.csv -p)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 28 \033[0;32m PASS \033[0;0m long name -p"
 else
@@ -427,7 +417,7 @@ else
 fi
 
 output=$(./a.out -l 2 MEETINGDATA.CSV)
-output1='Only .csv files should be given as inputs.'
+output1=$(./samplev1 -l 2 MEETINGDATA.CSV)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 35 \033[0;32m PASS \033[0;0m -l 2 MEETINGDATA.CSV"
 else
