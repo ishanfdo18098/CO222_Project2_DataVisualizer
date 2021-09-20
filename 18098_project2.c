@@ -14,7 +14,6 @@ Notes (different from sample program):
 Author : Fernando K.A. Ishan - E/18/098
 */
 #include <stdio.h>
-#include <getopt.h> //option parsing
 #include <stdlib.h> //aoti()
 #include <string.h> //strlen()
 #include <ctype.h>  //isdigit()
@@ -68,12 +67,21 @@ int main(int argc, char **argv)
 
     //process the files
     int fileCount = 0; //keep a count of files to know if there are 0 files - > error
-    for (int index = optind; index < argc; index++)
+    for (int index = 1; index < argc; index++)
     {
         //renaming for easiness of reading and writing
         char *currentFileName = &argv[index][0];
 
-        // printf("current filename: %s\n", currentFileName);
+        if (strcmp(currentFileName, "-l") == 0) //if its -l, dont read the next string that could be the value for -l
+        {
+            index++;
+            continue;
+        }
+
+        if (currentFileName[0] == '-') //if its some other option
+        {
+            continue;
+        }
 
         // check if the file format is correct
         char *formatOfCurrentFile = &currentFileName[strlen(currentFileName) - 4]; //get the pointer to the format of file
@@ -148,9 +156,8 @@ int main(int argc, char **argv)
 void parseOptions(int argc, char **argv)
 {
     //check if all the options are valid
-    //had to use whole new thing because the error log showed the argument entered, getopt only returns a char
-    //but need to echo the whole word ( -abc vs -a )
     char optionsPossible[5][10] = {"-m", "-t", "-p", "--scaled", "-l"};
+    //-------------------------------0-----1-----2------3----------4   <----indexes
     for (int i = 0; i < argc; i++)
     {
         if (argv[i][0] != '-') // if its not a option, dont check it
@@ -160,11 +167,73 @@ void parseOptions(int argc, char **argv)
 
         //check for matches
         int matchFound = 0;
+        int matchIndex = -1;        //which string was it matched to ?
         for (int j = 0; j < 5; j++) //loop over all the possible words
         {
             if (strcmp(argv[i], optionsPossible[j]) == 0) //if it matches
             {
                 matchFound = 1; //make the flag 1
+                matchIndex = j; //matched index
+            }
+        }
+
+        //if a match is found
+        if (matchFound)
+        {
+            switch (matchIndex) //switch on which was the option
+            {
+            case 0: //-m
+                isMeeting = 1;
+                break;
+            case 1: //-t
+                isTime = 1;
+                break;
+            case 2: //-p
+                isParticipants = 1;
+                break;
+            case 3: //--scaled
+                isScaled = 1;
+                break;
+            case 4:                // -l with or without another value
+                if (i + 1 >= argc) 
+                {
+                    // -l is there but without any number in front of it
+                    printf("Not enough options for [-l]\n");
+                    printUsage();
+                    exit(0);
+                }
+                //check if optarg is a numerical value
+                for (int j = 0; j < strlen(argv[i + 1]); j++)
+                {
+                    if (isdigit(argv[i + 1][j]) == 0 && argv[i + 1][j] != '-') //if its not a digit and not negative sign
+                    {
+                        //if its not numerical , etc, -l abc
+                        printf("Invalid options for [-l]\n");
+                        printUsage();
+                        exit(0);
+                    }
+                }
+
+                //convert string to int
+                int numberEntered = atoi(argv[i + 1]);
+
+                if (numberEntered > 0)
+                {
+                    //if the number entered is more than 0
+                    numberOfElementsInGraph = numberEntered;
+                }
+                else if (numberEntered < 0)
+                {
+                    //if less than 0
+                    printf("Invalid option(negative) for [-l]\n");
+                    printUsage();
+                    exit(0);
+                }
+                else if (numberEntered == 0) //samplev1 didnt print anything when -l is 0
+                {
+                    exit(0);
+                }
+                break;
             }
         }
 
@@ -178,91 +247,6 @@ void parseOptions(int argc, char **argv)
         if (strcmp(argv[i], "-l") == 0) //if its -l, you dont have to check the next word as its checked in getopt anyway
         {
             i++;
-        }
-    }
-
-    // https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Option-Example.html
-    int optionEntered;
-    opterr = 0; //disable echoing that there is an error
-    while (1)   //until there are options left
-    {
-        //options in long form and short
-        static struct option long_options[] =
-            {
-                //longForm, argsRequired?, flagVariableAddress, shortForm
-                {"length", required_argument, 0, 'l'},
-                {"meeting", no_argument, 0, 'm'},
-                {"time", no_argument, 0, 't'},
-                {"participants", no_argument, 0, 'p'},
-                {"scaled", no_argument, 0, 's'}, //this is the reason why getopt_long is used
-                {0, 0, 0, 0}};
-
-        /* getopt_long stores the option index here. */
-        int option_index = 0;
-
-        optionEntered = getopt_long(argc, argv, "l:mtps", long_options, &option_index); //get each option and their respective strings next to them
-
-        /* Detect the end of the options. */
-        if (optionEntered == -1) //if there are no options left
-            break;
-
-        //switch on each optionEntered
-        switch (optionEntered)
-        {
-        case 'l': //if -l is entered
-            //check if optarg is a numerical value
-            for (int i = 0; i < strlen(optarg); i++)
-            {
-                if (isdigit(optarg[i]) == 0 && optarg[i] != '-') //if its not a digit and not negative sign
-                {
-                    //if its not numerical , etc, -l abc
-                    printf("Invalid options for [-l]\n");
-                    printUsage();
-                    exit(0);
-                }
-            }
-
-            //convert string to int
-            int numberEntered = atoi(optarg);
-
-            if (numberEntered > 0)
-            {
-                //if the number entered is more than 0
-                numberOfElementsInGraph = numberEntered;
-            }
-            else if (numberEntered < 0)
-            {
-                //if less than 0
-                printf("Invalid option(negative) for [-l]\n");
-                printUsage();
-                exit(0);
-            }
-            else if (numberEntered == 0) //samplev1 didnt print anything when -l is 0
-            {
-                exit(0);
-            }
-            break;
-        case 'm': // -m
-            isMeeting = 1;
-            break;
-        case 't': // -t
-            isTime = 1;
-            break;
-        case 'p': //-t
-            isParticipants = 1;
-            break;
-        case 's': //--scaled
-            isScaled = 1;
-            break;
-        case '?': //everything thats not specified (and has - sign before the word)
-            if (optopt == 'l')
-            {
-                // -l is there but without any number in front of it
-                printf("Not enough options for [-l]\n");
-                printUsage();
-                exit(0);
-            }
-            break;
         }
     }
 
