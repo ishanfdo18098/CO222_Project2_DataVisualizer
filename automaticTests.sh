@@ -83,7 +83,7 @@ else
 fi
 
 output=$(./a.out meeting)
-output1='Only .csv files should be given as inputs.'
+output1=$(./samplev1 meeting)
 if [ "$output" = "$output1" ]; then
     echo -e "Test  7 \033[0;32m PASS \033[0;0m meeting"
 else
@@ -100,7 +100,7 @@ else
 fi
 
 output=$(./a.out -l 0)
-output1=''
+output1=$(./samplev1 -l 0)
 if [ "$output" = "$output1" ]; then
     echo -e "Test  9 \033[0;32m PASS \033[0;0m -l 0"
 else
@@ -168,7 +168,7 @@ else
 fi
 
 output=$(./a.out first.csv)
-output1='Cannot open one or more given files'
+output1=$(./samplev1 first.csv)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 17 \033[0;32m PASS \033[0;0m first.csv"
 else
@@ -178,7 +178,7 @@ fi
 rm meetingData.csv
 touch meetingData.csv
 output=$(./a.out meetingData.csv)
-output1='No data to process'
+output1=$(./samplev1 meetingData.csv)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 18 \033[0;32m PASS \033[0;0m empty file"
 else
@@ -208,7 +208,7 @@ Dr_Kamal_Jayasooriya,14,0:51:41
 Raul_Oliver,2,2:05:05" > meetingData.csv
 
 output=$(./a.out -p 5)
-output1='Only .csv files should be given as inputs.'
+output1=$(./samplev1 -p 5)
 if [ "$output" = "$output1" ]; then
     echo -e "Test 19 \033[0;32m PASS \033[0;0m -p 5"
 else
@@ -468,6 +468,33 @@ else
     echo -e "Test 39 \033[0;31m FAILED---------------\033[0;0m more commas in the middle"
 fi
 
+echo "Ashley_Parry,25,1:38:06
+
+
+
+
+
+
+
+
+Raul_Oliver,2,2:05:05" > meetingData.csv
+output=$(./a.out meetingData.csv)
+output1=$(./samplev1 meetingData.csv)
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 40 \033[0;32m PASS \033[0;0m multiple empty lines in the middle"
+else
+    echo -e "Test 40 \033[0;31m FAILED---------------\033[0;0m multiple empty lines in the middle"
+fi
+
+echo  -n "Ashley_Parry,25,1:38:06
+Raul_Oliver,2,2:05:05" > meetingData.csv
+output=$(./a.out meetingData.csv)
+output1=$(./samplev1 meetingData.csv)
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 41 \033[0;32m PASS \033[0;0m no new line at the end of meetingData.csv"
+else
+    echo -e "Test 41 \033[0;31m FAILED---------------\033[0;0m no new line at the end of meetingData.csv"
+fi
 
 
 
