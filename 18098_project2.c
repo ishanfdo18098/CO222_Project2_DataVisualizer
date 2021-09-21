@@ -311,11 +311,14 @@ void readFileThenAddThemToArrays(char *fileName)
         ungetc(c, filePointer); //otherwise this character will be missing when we read the line again
     }
 
-    char *line = NULL;
-    size_t len = 0;
-    ssize_t read;
+    // char *line = NULL;
+    // size_t len = 0;
+    // ssize_t read;
+    int bufferLength = 255;
+    char line[bufferLength];
     //read each line
-    while ((read = getline(&line, &len, filePointer)) != -1)
+    // while ((read = getline(&line, &len, filePointer)) != -1)
+    while (fgets(line, bufferLength, filePointer))
     {
         // https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
 
