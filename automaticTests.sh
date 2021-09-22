@@ -475,8 +475,6 @@ echo "Ashley_Parry,25,1:38:06
 
 
 
-
-
 Raul_Oliver,2,2:05:05" > meetingData.csv
 output=$(./a.out meetingData.csv)
 output1=$(./samplev1 meetingData.csv)
@@ -494,6 +492,33 @@ if [ "$output" = "$output1" ]; then
     echo -e "Test 41 \033[0;32m PASS \033[0;0m no new line at the end of meetingData.csv"
 else
     echo -e "Test 41 \033[0;31m FAILED---------------\033[0;0m no new line at the end of meetingData.csv"
+fi
+
+echo  ",25,1:38:06" > meetingData.csv
+output=$(./a.out meetingData.csv)
+output1=$(./samplev1 meetingData.csv)
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 42 \033[0;32m PASS \033[0;0m name missing, but comma is there"
+else
+    echo -e "Test 42 \033[0;31m FAILED---------------\033[0;0m name missing, but comma is there"
+fi
+
+echo  "25,1:38:06" > meetingData.csv
+output=$(./a.out meetingData.csv)
+output1=$(./samplev1 meetingData.csv)
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 43 \033[0;32m PASS \033[0;0m name missing"
+else
+    echo -e "Test 43 \033[0;31m FAILED---------------\033[0;0m name missing"
+fi
+
+echo  "" > meetingData.csv
+output=$(./a.out meetingData.csv)
+output1=$(./samplev1 meetingData.csv)
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 44 \033[0;32m PASS \033[0;0m meetingData.csv content deleted"
+else
+    echo -e "Test 44 \033[0;31m FAILED---------------\033[0;0m meetingData.csv content deleted"
 fi
 
 
