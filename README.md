@@ -1,5 +1,15 @@
+
+How to run automated testing?
+```
+  gcc <your_project2>.c
+  ./automaticTests.sh
+```
+Note: samplev1, a.out(from gcc) and automaticTests.sh should be in the same folder. If 18098_project2.c file is in the same directory, automaticTests.sh will compile that when you run the .sh. Therefore, remove 18098_project2.c if you're using the .sh to test your own code.
+
 # CO222: Programming Methodology - Project 2
 ## Meeting Data Visualizer - Specification
+
+
 
 ### Introduction
 Due to the social distancing and travel restrictions all around the world, people have moved most of the work to virtual environments. Due to this, the usage of meeting tools has exponentially increased so as the data gathered through such tools. The objective of this project is to analyze such data files and visually represent the data as per the requirement of user.
