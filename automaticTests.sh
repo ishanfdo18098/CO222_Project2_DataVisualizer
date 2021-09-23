@@ -527,10 +527,20 @@ SECONDS=0
 lines=500000
 rm meetingData.csv
 touch meetingData.csv
-for ((i=1; i<=$lines; i++))
-do
-   echo "$i,3,1:12:23" >> meetingData.csv
-done
+echo "#include <stdio.h>
+
+int main()
+{
+    FILE *fp = fopen(\"meetingData.csv\", \"w\");
+    for (int i = 0; i < $lines; i++)
+    {
+        fprintf(fp, \"%d,1,1:00:00\n\", i);
+    }
+
+    return 0;
+}" > createLongCSV.c
+gcc createLongCSV.c -o longCSV
+./longCSV
 echo "long csv file created, $lines lines took about $SECONDS seconds"
 echo "testing programs now"
 SECONDS=0

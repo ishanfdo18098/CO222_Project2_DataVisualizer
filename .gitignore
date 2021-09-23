@@ -10,3 +10,8 @@ testcsv.csv
 testEmpty.csv
 testBoth.sh
 18098_project2.exe
+createCSV.sh
+createLongCSV.c
+longCSV
+meetingData.csv
+.gitignore
