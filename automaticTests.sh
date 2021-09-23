@@ -524,7 +524,11 @@ fi
 echo ""
 echo "creating a long csv file"
 SECONDS=0
-lines=500000
+lines=$1
+if [ -z "$1" ]
+  then
+    lines=20000
+fi
 rm meetingData.csv
 touch meetingData.csv
 echo "#include <stdio.h>
@@ -534,15 +538,15 @@ int main()
     FILE *fp = fopen(\"meetingData.csv\", \"w\");
     for (int i = 0; i < $lines; i++)
     {
-        fprintf(fp, \"%d,1,1:00:00\n\", i);
+        fprintf(fp, \"%d,%d,1:00:00\n\", i,99999-i*2);
     }
-
+    fclose(fp);
     return 0;
 }" > createLongCSV.c
 gcc createLongCSV.c -o longCSV
 ./longCSV
-echo "long csv file created, $lines lines took about $SECONDS seconds"
-echo "testing programs now"
+echo "long csv file created, $lines lines"
+echo "testing programs now, this will take some time"
 SECONDS=0
 output=$(./a.out meetingData.csv -p)
 echo "your program took $SECONDS seconds"
@@ -550,9 +554,9 @@ SECONDS=0
 output1=$(./samplev1 meetingData.csv -p)
 echo "sameplev1 took $SECONDS seconds"
 if [ "$output" = "$output1" ]; then
-    echo -e "Test 45 \033[0;32m PASS \033[0;0m long csv"
+    echo -e "Test 45 \033[0;32m PASS \033[0;0m long csv, $lines lines"
 else
-    echo -e "Test 45 \033[0;31m FAILED---------------\033[0;0m longcsv"
+    echo -e "Test 45 \033[0;31m FAILED---------------\033[0;0m long csv, $lines lines"
 fi
 
 

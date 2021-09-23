@@ -14,4 +14,4 @@ createCSV.sh
 createLongCSV.c
 longCSV
 meetingData.csv
-.gitignore
+meetingData.csv
