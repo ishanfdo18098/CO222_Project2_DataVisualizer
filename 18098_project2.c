@@ -551,6 +551,11 @@ void sortData(int *chosenArray)
             }
         }
     }
+    if (chosenArray[1] == 0)
+    {
+        puts("No data to process");
+        exit(0);
+    }
 }
 
 //get the current number of records in the array
@@ -564,7 +569,7 @@ int getMaximumEnteredNameLength()
 {
     int maxmimumLength = 0;
     //go through the names that will be printed and find the maximum
-    for (int i = 0; i < numberOfElementsInGraph + 1; i++)
+    for (int i = 1; i < numberOfElementsInGraph + 1; i++)
     {
         if (strlen(namesARRAY[i]) > maxmimumLength)
         {
@@ -673,8 +678,8 @@ int getBarLength(int index, int *chosenArray)
         //the maximum number in chosenArray is taken as the max length and scaled accordingly
 
         //this give the number of bars for each unit of chosenArray() based on the maximum number of chosenArray()
-        double numberOfBarsPerUnit = maximumBarLength / (double)chosenArray[1];           // chosenArray[1] is the maximum count
-        int numberOfBarsInThisEntry = (numberOfBarsPerUnit * (double)chosenArray[index]); //multiply that by current records chosenArray() number
+        double numberOfBarsPerUnit = maximumBarLength / (double)chosenArray[1];                // chosenArray[1] is the maximum count
+        int numberOfBarsInThisEntry = (int)(numberOfBarsPerUnit * (double)chosenArray[index]); //multiply that by current records chosenArray() number
 
         return numberOfBarsInThisEntry;
     }
@@ -684,7 +689,8 @@ int getBarLength(int index, int *chosenArray)
 
         //find the sum of all the values
         int sumOfValues = 0;
-        for (int i = 0; i < MAX_ENTRIES; i++)
+        int limit = getIndexOfEmptyElementInNamesArray();
+        for (int i = 1; i < limit; i++)
         {
             sumOfValues += chosenArray[i];
         }
