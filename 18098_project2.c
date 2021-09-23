@@ -19,8 +19,8 @@ Author : Fernando K.A. Ishan - E/18/098
 #include <ctype.h>  //isdigit()
 
 //maximums
-#define MAX_ENTRIES 10000 * 100 //10,000 entries use about 2.03MB of memory
-#define MAX_NAME_LENGTH 200 + 1
+#define MAX_ENTRIES 1000 * 1000 //10,000 entries use about 2.03MB of memory
+#define MAX_NAME_LENGTH 100
 
 //this is kind of like the database 😂🤣
 //basically the elements are matched by the index number.
@@ -391,8 +391,9 @@ void readFileThenAddThemToArrays(char *fileName)
 //search for name in array and return the index if available, else return 0
 int getIndexOfNameInArray(char *namePointer)
 {
+    int limit = getIndexOfEmptyElementInNamesArray() + 1;
     //loop through the list to find if the name exists
-    for (int i = 1; i < MAX_ENTRIES; i++)
+    for (int i = 1; i < limit; i++)
     {
         if (strcmp(namePointer, namesARRAY[i]) == 0)
         {
@@ -504,8 +505,9 @@ int convertHoursToMinutes(char *timeInHours)
 //check if the string is numerical
 void checkIfStringIsNumerical(char *pointerToString)
 {
+    int limit = strlen(pointerToString);
     //for each char in the string
-    for (int i = 0; i < strlen(pointerToString); i++)
+    for (int i = 0; i < limit; i++)
     {
         if (isdigit(pointerToString[i]) == 0) //check if that char is not a digit
         {
@@ -518,6 +520,7 @@ void checkIfStringIsNumerical(char *pointerToString)
 //sort the records by the given array
 void sortData(int *chosenArray)
 {
+    int limit = getNumberOfRecordsInArrays() + 1;
     //bubble sort
     int didAnythingChange = 1;
 
@@ -526,7 +529,7 @@ void sortData(int *chosenArray)
         //set flag to 0, to stop the loop eventually
         didAnythingChange = 0;
         //iterate over all the elements except the last
-        for (int i = 1; i < getNumberOfRecordsInArrays(); i++)
+        for (int i = 1; i < limit; i++)
         {
             //if the element next to the current one is larger than current one
             if (chosenArray[i] < chosenArray[i + 1])
@@ -670,8 +673,8 @@ int getBarLength(int index, int *chosenArray)
         //the maximum number in chosenArray is taken as the max length and scaled accordingly
 
         //this give the number of bars for each unit of chosenArray() based on the maximum number of chosenArray()
-        double numberOfBarsPerUnit = maximumBarLength / (double)chosenArray[1];        // chosenArray[1] is the maximum count
-        int numberOfBarsInThisEntry = (int)(numberOfBarsPerUnit * chosenArray[index]); //multiply that by current records chosenArray() number
+        double numberOfBarsPerUnit = maximumBarLength / (double)chosenArray[1];           // chosenArray[1] is the maximum count
+        int numberOfBarsInThisEntry = (numberOfBarsPerUnit * (double)chosenArray[index]); //multiply that by current records chosenArray() number
 
         return numberOfBarsInThisEntry;
     }
@@ -681,15 +684,17 @@ int getBarLength(int index, int *chosenArray)
 
         //find the sum of all the values
         int sumOfValues = 0;
-        for (int i = 1; i < MAX_ENTRIES; i++)
+        for (int i = 0; i < MAX_ENTRIES; i++)
         {
             sumOfValues += chosenArray[i];
         }
 
         //get the number of bars per unit, this way, the whole bar means the sum of all the entries
-        double numberOfBarsPerUnit = (double)maximumBarLength / sumOfValues;
+        double numberOfBarsPerUnit = maximumBarLength / (double)sumOfValues;
         //get the number of bars for this record
-        int numberOfBarsForThisEntry = (int)(numberOfBarsPerUnit * chosenArray[index]);
+        int numberOfBarsForThisEntry = (double)(numberOfBarsPerUnit * chosenArray[index]);
+        // printf("%lf", numberOfBarsPerUnit * chosenArray[index]);
+        // printf("%d", numberOfBarsForThisEntry);
 
         //return the bar length
         return numberOfBarsForThisEntry;
