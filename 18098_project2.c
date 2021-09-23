@@ -670,7 +670,7 @@ int getBarLength(int index, int *chosenArray)
     //first find the maximum bar length, this changes because the name length changes and the maximum graph width is 80
     int numberOfSpacesToKeep = getMaximumEnteredNameLength() + 2;
     int numberOfBars = 80 - numberOfSpacesToKeep - 1;
-    int maximumBarLength = numberOfBars - getLengthOfNumber(chosenArray[index]);
+    int maximumBarLength = numberOfBars - getLengthOfNumber(chosenArray[1]);
 
     //if its scaled
     if (isScaled)
