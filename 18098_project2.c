@@ -19,7 +19,7 @@ Author : Fernando K.A. Ishan - E/18/098
 #include <ctype.h>  //isdigit()
 
 //maximums
-#define MAX_ENTRIES 1000 * 100 //1000 entries use about 0.203MB of memory
+#define MAX_ENTRIES 1000 * 1000 //1000 entries use about 0.203MB of memory
 #define MAX_NAME_LENGTH 200 + 1
 
 //this is kind of like the database 😂🤣

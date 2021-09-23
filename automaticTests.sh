@@ -521,29 +521,52 @@ else
     echo -e "Test 44 \033[0;31m FAILED---------------\033[0;0m meetingData.csv content deleted"
 fi
 
+echo ""
+echo "creating a long csv file"
+SECONDS=0
+lines=500000
+rm meetingData.csv
+touch meetingData.csv
+for ((i=1; i<=$lines; i++))
+do
+   echo "$i,3,1:12:23" >> meetingData.csv
+done
+echo "long csv file created, $lines lines took about $SECONDS seconds"
+echo "testing programs now"
+SECONDS=0
+output=$(./a.out meetingData.csv -p)
+echo "your program took $SECONDS seconds"
+SECONDS=0
+output1=$(./samplev1 meetingData.csv -p)
+echo "sameplev1 took $SECONDS seconds"
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 45 \033[0;32m PASS \033[0;0m long csv"
+else
+    echo -e "Test 45 \033[0;31m FAILED---------------\033[0;0m longcsv"
+fi
 
 
 
 
-echo "Ashley_Parry,25,1:38:06
-Namal_Perera,12,2:24:56
-Namal_Perera,197,2:04:01
-Prabath_Silva,6,0:16:46
-Bethany_William,9,1:49:12
-Ashley_Parry,15,1:33:26
-Namal_Perera,3,0:04:26
-Aaliya_Bruce,2,0:03:37
-Aaliya_Bruce,2,0:00:59
-Prabath_Silva,2,0:32:26
-Waruni_Fernando,15,2:38:42
-Raul_Oliver,7,1:12:20
-Aaliya_Bruce,2,0:00:54
-Dr_Rajitha_Karunarathna,3,0:15:16
-Raul_Oliver,3,0:02:10
-Jasper_Jensen,4,0:32:05
-Jasper_Jensen,4,0:08:37
-Namal_Perera,3,1:37:40
-Chamira_Perera,3,0:46:35
-Wasana_Tennekoon,8,0:40:13
-Dr_Kamal_Jayasooriya,14,0:51:41
-Raul_Oliver,2,2:05:05" > meetingData.csv
+# echo "Ashley_Parry,25,1:38:06
+# Namal_Perera,12,2:24:56
+# Namal_Perera,197,2:04:01
+# Prabath_Silva,6,0:16:46
+# Bethany_William,9,1:49:12
+# Ashley_Parry,15,1:33:26
+# Namal_Perera,3,0:04:26
+# Aaliya_Bruce,2,0:03:37
+# Aaliya_Bruce,2,0:00:59
+# Prabath_Silva,2,0:32:26
+# Waruni_Fernando,15,2:38:42
+# Raul_Oliver,7,1:12:20
+# Aaliya_Bruce,2,0:00:54
+# Dr_Rajitha_Karunarathna,3,0:15:16
+# Raul_Oliver,3,0:02:10
+# Jasper_Jensen,4,0:32:05
+# Jasper_Jensen,4,0:08:37
+# Namal_Perera,3,1:37:40
+# Chamira_Perera,3,0:46:35
+# Wasana_Tennekoon,8,0:40:13
+# Dr_Kamal_Jayasooriya,14,0:51:41
+# Raul_Oliver,2,2:05:05" > meetingData.csv
