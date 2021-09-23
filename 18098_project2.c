@@ -551,6 +551,8 @@ void sortData(int *chosenArray)
             }
         }
     }
+
+    //if the maximum is zero, there is nothing to print anyway
     if (chosenArray[1] == 0)
     {
         puts("No data to process");

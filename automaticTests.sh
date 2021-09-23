@@ -577,7 +577,7 @@ do
         FILE *fp = fopen(\"meetingData.csv\", \"w\");
         for (int i = 0; i < $lines; i++)
         {
-            fprintf(fp, \"abd%d,%d,1:%d:00\n\", i,i,i);
+            fprintf(fp, \"abd%d,%d,0:%d:00\n\", i,i,i);
         }
         fclose(fp);
         return 0;
