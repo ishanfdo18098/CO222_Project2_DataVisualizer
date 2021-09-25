@@ -680,8 +680,8 @@ int getBarLength(int index, int *chosenArray)
         //the maximum number in chosenArray is taken as the max length and scaled accordingly
 
         //this give the number of bars for each unit of chosenArray() based on the maximum number of chosenArray()
-        float numberOfBarsPerUnit = maximumBarLength / (float)chosenArray[1];                 // chosenArray[1] is the maximum count
-        int numberOfBarsInThisEntry = (int)(numberOfBarsPerUnit * (float)chosenArray[index]); //multiply that by current records chosenArray() number
+        double numberOfBarsPerUnit = maximumBarLength / (double)chosenArray[1];                 // chosenArray[1] is the maximum count
+        int numberOfBarsInThisEntry = (int)(numberOfBarsPerUnit * (double)chosenArray[index]); //multiply that by current records chosenArray() number
 
         return numberOfBarsInThisEntry;
     }
