@@ -521,7 +521,7 @@ else
     echo -e "Test 44 \033[0;31m FAILED---------------\033[0;0m meetingData.csv content deleted"
 fi
 
-for i in {0..33}
+for i in {0..100}
 do
     # echo ""
     lines=$i
@@ -557,45 +557,6 @@ do
         echo -e "Test $((45+i)) \033[0;32m PASS \033[0;0m long csv -p, $lines lines"
     else
         echo -e "Test $((45+i)) \033[0;31m FAILED---------------\033[0;0m long csv -p, $lines lines"
-    fi
-done
-
-for i in {0..33}
-do
-    # echo ""
-    lines=$i
-    # if [ -z "$1" ]
-    # then
-    #     lines=20000
-    # fi
-    rm meetingData.csv
-    touch meetingData.csv
-    echo "#include <stdio.h>
-
-    int main()
-    {
-        FILE *fp = fopen(\"meetingData.csv\", \"w\");
-        for (int i = 0; i < $lines; i++)
-        {
-            fprintf(fp, \"abd%d,%d,0:%d:00\n\", i,i,i);
-        }
-        fclose(fp);
-        return 0;
-    }" > createLongCSV.c
-    gcc createLongCSV.c -o longCSV
-    ./longCSV
-    # echo "long csv file created, $lines lines"
-    # echo "testing programs now, this will take some time"
-    SECONDS=0
-    output=$(./a.out meetingData.csv -t)
-    # echo "your program took $SECONDS seconds"
-    SECONDS=0
-    output1=$(./samplev1 meetingData.csv -t)
-    # echo "sameplev1 took $SECONDS seconds"
-    if [ "$output" = "$output1" ]; then
-        echo -e "Test $((45+33+i)) \033[0;32m PASS \033[0;0m long csv -t, $lines lines"
-    else
-        echo -e "Test $((45+33+i)) \033[0;31m FAILED---------------\033[0;0m long csv -t, $lines lines"
     fi
 done
 

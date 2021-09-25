@@ -19,7 +19,7 @@ Author : Fernando K.A. Ishan - E/18/098
 #include <ctype.h>  //isdigit()
 
 //maximums
-#define MAX_ENTRIES 1000 * 1000 //10,000 entries use about 2.03MB of memory
+#define MAX_ENTRIES 10000 * 100 //10,000 entries use about 2.03MB of memory
 #define MAX_NAME_LENGTH 100
 
 //this is kind of like the database 😂🤣
@@ -680,8 +680,8 @@ int getBarLength(int index, int *chosenArray)
         //the maximum number in chosenArray is taken as the max length and scaled accordingly
 
         //this give the number of bars for each unit of chosenArray() based on the maximum number of chosenArray()
-        double numberOfBarsPerUnit = maximumBarLength / (double)chosenArray[1];                // chosenArray[1] is the maximum count
-        int numberOfBarsInThisEntry = (int)(numberOfBarsPerUnit * (double)chosenArray[index]); //multiply that by current records chosenArray() number
+        float numberOfBarsPerUnit = maximumBarLength / (float)chosenArray[1];                 // chosenArray[1] is the maximum count
+        int numberOfBarsInThisEntry = (int)(numberOfBarsPerUnit * (float)chosenArray[index]); //multiply that by current records chosenArray() number
 
         return numberOfBarsInThisEntry;
     }
@@ -698,9 +698,9 @@ int getBarLength(int index, int *chosenArray)
         }
 
         //get the number of bars per unit, this way, the whole bar means the sum of all the entries
-        double numberOfBarsPerUnit = maximumBarLength / (double)sumOfValues;
+        float numberOfBarsPerUnit = maximumBarLength / (float)sumOfValues;
         //get the number of bars for this record
-        int numberOfBarsForThisEntry = (double)(numberOfBarsPerUnit * chosenArray[index]);
+        int numberOfBarsForThisEntry = (float)(numberOfBarsPerUnit * chosenArray[index]);
         // printf("%lf", numberOfBarsPerUnit * chosenArray[index]);
         // printf("%d", numberOfBarsForThisEntry);
 
