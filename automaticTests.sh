@@ -4,7 +4,7 @@ echo ""
 
 FILE=18098_project2.c
 if test -f "$FILE"; then
-    gcc 18098_project2.c -Wall
+    gcc $FILE -Wall
     echo "Compiled $FILE"
 fi
 
@@ -1036,8 +1036,78 @@ else
     echo -e "Test 46 \033[0;31m FAILED---------------\033[0;0m meetingData.csv float double check --scaled"
 fi
 
+output=$(./a.out adfg -l 0)
+output1=$(./samplev1 adfg -l 0)
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 47 \033[0;32m PASS \033[0;0m adfg -l 0"
+else
+    echo -e "Test 47 \033[0;31m FAILED---------------\033[0;0m adfg -l 0"
+fi
 
-for i in {0..100}
+output=$(./a.out -l 0 adfg)
+output1=$(./samplev1 -l 0 adfg)
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 48 \033[0;32m PASS \033[0;0m -l 0 adfg"
+else
+    echo -e "Test 48 \033[0;31m FAILED---------------\033[0;0m -l 0 adfg"
+fi
+
+echo "0,0,0:0:00
+1,1,0:1:00
+2,2,0:2:00
+3,3,0:3:00
+4,4,0:4:00
+5,5,0:5:00
+6,6,0:6:00
+7,7,0:7:00
+8,8,0:8:00
+9,9,0:9:00
+0,10,0:10:00
+1,11,0:11:00
+2,12,0:12:00
+3,13,0:13:00
+4,14,0:14:00
+5,15,0:15:00
+6,16,0:16:00
+7,17,0:17:00
+8,18,0:18:00
+9,19,0:19:00
+0,0,0:20:00
+1,1,0:21:00
+2,2,0:22:00
+3,3,0:23:00
+4,4,0:24:00
+5,5,0:25:00
+6,6,0:26:00
+7,7,0:27:00
+8,8,0:28:00
+9,9,0:29:00
+0,10,0:0:00
+1,11,0:1:00
+2,12,0:2:00
+3,13,0:3:00
+4,14,0:4:00" > meetingData.csv
+output=$(./a.out meetingData.csv -p --scaled)
+output1=$(./samplev1 meetingData.csv -p --scaled)
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 49 \033[0;32m PASS \033[0;0m meetingData.csv -p --scaled, 4 tests that failed"
+else
+    echo -e "Test 49 \033[0;31m FAILED---------------\033[0;0m meetingData.csv -p --scaled, 4 tests that failed"
+fi
+
+output=$(./a.out meetingData.csv -p --scaled -l 15)
+output1=$(./samplev1 meetingData.csv -p --scaled -l 15)
+if [ "$output" = "$output1" ]; then
+    echo -e "Test 50 \033[0;32m PASS \033[0;0m meetingData.csv -p --scaled -l 15"
+else
+    echo -e "Test 50 \033[0;31m FAILED---------------\033[0;0m meetingData.csv -p --scaled -l 15"
+fi
+
+
+j=51
+
+
+for i in {0..20}
 do
     # echo ""
     lines=$i
@@ -1070,9 +1140,9 @@ do
     output1=$(./samplev1 meetingData.csv -p)
     # echo "sameplev1 took $SECONDS seconds"
     if [ "$output" = "$output1" ]; then
-        echo -e "Test $((46+i)) \033[0;32m PASS \033[0;0m long csv -p, $lines lines"
+        echo -e "Test $((j+i)) \033[0;32m PASS \033[0;0m random generated csv csv -p, $lines lines"
     else
-        echo -e "Test $((46+i)) \033[0;31m FAILED---------------\033[0;0m long csv -p, $lines lines"
+        echo -e "Test $((j+i)) \033[0;31m FAILED---------------\033[0;0m random generated csv -p, $lines lines"
     fi
 done
 
@@ -1107,9 +1177,9 @@ SECONDS=0
 output1=$(./samplev1 meetingData.csv -p)
 echo "sameplev1 took $SECONDS seconds"
 if [ "$output" = "$output1" ]; then
-    echo -e "Test $((47+i)) \033[0;32m PASS \033[0;0m long csv -p, $lines lines"
+    echo -e "Test $((j+i)) \033[0;32m PASS \033[0;0m long csv -p, $lines lines"
 else
-    echo -e "Test $((47+i)) \033[0;31m FAILED---------------\033[0;0m long csv -p, $lines lines"
+    echo -e "Test $((j+i)) \033[0;31m FAILED---------------\033[0;0m long csv -p, $lines lines"
 fi
 
 
