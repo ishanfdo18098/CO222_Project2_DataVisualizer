@@ -21,12 +21,13 @@ Author : Fernando K.A. Ishan - E/18/098
 //maximums
 int MAX_ENTRIES = 100; //10,000 entries use about 2.03MB of memory
 #define MAX_NAME_LENGTH 100
+#define REALLOC_RATIO 2
 
 //this is kind of like the database 😂🤣
 //basically the elements are matched by the index number.
 //IMPORTANT: element at index 0 is not used. For some reason it didnt work properly (checking if the name exists didnt work for index 0)
 //therefore, records are save from index 1 and onwards, index 0 is not used for anything
-char namesARRAY[100][MAX_NAME_LENGTH] = {};
+char *namesARRAY;
 int *numberOfMeetingsARRAY;
 int *numberOfParticipantsARRAY;
 int *timeDurationInMinutesARRAY;
@@ -61,6 +62,8 @@ char *programName;                // used to get the program name in printUsage(
 
 int main(int argc, char **argv)
 {
+
+    namesARRAY = (char *)malloc(sizeof(int) * MAX_ENTRIES * MAX_NAME_LENGTH);
     numberOfMeetingsARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
     numberOfParticipantsARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
     timeDurationInMinutesARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
@@ -266,7 +269,7 @@ void printGraph(int *chosenArrayToSort)
     for (int i = 1; i < numberOfElementsInGraph + 1; i++) //number of items according to -l
     {
         //if there is no record there, dont print it , and anything after that
-        if (namesARRAY[i][0] == 0)
+        if (*(namesARRAY + i * MAX_NAME_LENGTH + 0) == 0)
         {
             break;
         }
@@ -274,7 +277,7 @@ void printGraph(int *chosenArrayToSort)
         int barLength = getBarLength(i, chosenArrayToSort);
 
         printTopAndLastLineOfEntry(barLength);
-        printMiddleLineOfEntry(namesARRAY[i], chosenArrayToSort[i], barLength);
+        printMiddleLineOfEntry(namesARRAY + MAX_NAME_LENGTH * i, chosenArrayToSort[i], barLength);
         printTopAndLastLineOfEntry(barLength);
         printEmptyLineInGraph();
     }
@@ -399,14 +402,14 @@ int getIndexOfNameInArray(char *namePointer)
     //loop through the list to find if the name exists
     for (int i = 1; i < limit; i++)
     {
-        if (strcmp(namePointer, namesARRAY[i]) == 0)
+        if (strcmp(namePointer, namesARRAY + MAX_NAME_LENGTH * i) == 0)
         {
             //if the name matches, return the index
             return i;
         }
 
         //if the first char of current element is NULL, dont have to check for names after that as everything will be NULL after that
-        if (namesARRAY[i][0] == 0)
+        if (*(namesARRAY + MAX_NAME_LENGTH * i + 0) == 0)
         {
             break;
         }
@@ -424,14 +427,31 @@ int getIndexOfEmptyElementInNamesArray()
     for (int i = 1; i < MAX_ENTRIES; i++)
     {
         //if the names first char is NULL, whole record is null, return the index
-        if (namesARRAY[i][0] == 0)
+        if (*(namesARRAY + MAX_NAME_LENGTH * i + 0) == 0)
         {
             return i;
         }
     }
-    //if the index doesnt return it means the array is full. size exceeded
-    puts("Array full, please increase MAX_ENTRIES");
-    exit(0);
+
+    //if there is no space in the current arrays, realloc them all
+    MAX_ENTRIES = REALLOC_RATIO * MAX_ENTRIES;
+    namesARRAY = (char *)realloc(namesARRAY, sizeof(int) * MAX_ENTRIES * MAX_NAME_LENGTH);
+    numberOfMeetingsARRAY = (int *)realloc(numberOfMeetingsARRAY, sizeof(int) * MAX_ENTRIES);
+    numberOfParticipantsARRAY = (int *)realloc(numberOfParticipantsARRAY, sizeof(int) * MAX_ENTRIES);
+    timeDurationInMinutesARRAY = (int *)realloc(timeDurationInMinutesARRAY, sizeof(int) * MAX_ENTRIES);
+
+    //look through all the elements in namesArray again to find the index
+    for (int i = 1; i < MAX_ENTRIES; i++)
+    {
+        //if the names first char is NULL, whole record is null, return the index
+        if (*(namesARRAY + MAX_NAME_LENGTH * i + 0) == 0)
+        {
+            return i;
+        }
+    }
+
+    printf("getIndexOfEmptyElementInNamesArray() not working properly");
+    return -1;
 }
 
 //write a new record into the arrays
@@ -445,7 +465,7 @@ void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInH
     int timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
 
     //write the data to the arrays at the correct index
-    strcpy(namesARRAY[indexToWriteTo], nameSTR);
+    strcpy(namesARRAY + MAX_NAME_LENGTH * indexToWriteTo, nameSTR);
     numberOfMeetingsARRAY[indexToWriteTo] = 1;
     numberOfParticipantsARRAY[indexToWriteTo] = currentNumberOfParticipantsINT;
     timeDurationInMinutesARRAY[indexToWriteTo] = timeInMinsINT;
@@ -545,9 +565,9 @@ void sortData(int *chosenArray)
 
                 //then have to change the names accordingly too. otherwise we dont know which number is whose 😂
                 char tempName[MAX_NAME_LENGTH];
-                strcpy(tempName, namesARRAY[i]);
-                strcpy(namesARRAY[i], namesARRAY[i + 1]);
-                strcpy(namesARRAY[i + 1], tempName);
+                strcpy(tempName, namesARRAY + i * MAX_NAME_LENGTH);
+                strcpy(namesARRAY + i * MAX_NAME_LENGTH, namesARRAY + (i + 1) * MAX_NAME_LENGTH);
+                strcpy(namesARRAY + (i + 1) * MAX_NAME_LENGTH, tempName);
 
                 //set flag to 1, then the loop will occur once again
                 //at some point, no changes will be made, then the loop ends
@@ -577,9 +597,9 @@ int getMaximumEnteredNameLength()
     //go through the names that will be printed and find the maximum
     for (int i = 1; i < numberOfElementsInGraph + 1; i++)
     {
-        if (strlen(namesARRAY[i]) > maxmimumLength)
+        if (strlen(namesARRAY + i * MAX_NAME_LENGTH) > maxmimumLength)
         {
-            maxmimumLength = strlen(namesARRAY[i]);
+            maxmimumLength = strlen(namesARRAY + i * MAX_NAME_LENGTH);
         }
     }
 

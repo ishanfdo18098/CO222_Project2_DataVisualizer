@@ -4,8 +4,9 @@ echo ""
 
 FILE=18098_project2.c
 if test -f "$FILE"; then
-    gcc $FILE -Wall
-    echo "Compiled $FILE"
+    output=$(gcc $FILE -Wall)
+    echo "Compiled File"
+    sleep 0.3
 fi
 
 echo "Ashley_Parry,25,1:38:06
