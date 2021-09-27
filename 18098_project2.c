@@ -19,17 +19,17 @@ Author : Fernando K.A. Ishan - E/18/098
 #include <ctype.h>  //isdigit()
 
 //maximums
-#define MAX_ENTRIES 10000 * 100 //10,000 entries use about 2.03MB of memory
+int MAX_ENTRIES = 100; //10,000 entries use about 2.03MB of memory
 #define MAX_NAME_LENGTH 100
 
 //this is kind of like the database 😂🤣
 //basically the elements are matched by the index number.
 //IMPORTANT: element at index 0 is not used. For some reason it didnt work properly (checking if the name exists didnt work for index 0)
 //therefore, records are save from index 1 and onwards, index 0 is not used for anything
-char namesARRAY[MAX_ENTRIES][MAX_NAME_LENGTH] = {};
-int numberOfMeetingsARRAY[MAX_ENTRIES] = {};
-int numberOfParticipantsARRAY[MAX_ENTRIES] = {};
-int timeDurationInMinutesARRAY[MAX_ENTRIES] = {};
+char namesARRAY[100][MAX_NAME_LENGTH] = {};
+int *numberOfMeetingsARRAY;
+int *numberOfParticipantsARRAY;
+int *timeDurationInMinutesARRAY;
 
 void parseOptions(int argc, char **argv);                                                 // option parsing
 void processFiles(int argc, char **argv);                                                 // process the files
@@ -61,6 +61,10 @@ char *programName;                // used to get the program name in printUsage(
 
 int main(int argc, char **argv)
 {
+    numberOfMeetingsARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
+    numberOfParticipantsARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
+    timeDurationInMinutesARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
+
     //make a pointer to the name of program, used when printing the usage
     programName = &(argv[0][0]);
 
