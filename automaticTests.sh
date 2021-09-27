@@ -1140,7 +1140,7 @@ do
     output1=$(./samplev1 meetingData.csv -p)
     # echo "sameplev1 took $SECONDS seconds"
     if [ "$output" = "$output1" ]; then
-        echo -e "Test $((j+i)) \033[0;32m PASS \033[0;0m random generated csv csv -p, $lines lines"
+        echo -e "Test $((j+i)) \033[0;32m PASS \033[0;0m random generated csv -p, $lines lines"
     else
         echo -e "Test $((j+i)) \033[0;31m FAILED---------------\033[0;0m random generated csv -p, $lines lines"
     fi
