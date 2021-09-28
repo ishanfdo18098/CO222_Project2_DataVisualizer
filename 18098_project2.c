@@ -11,6 +11,7 @@ Notes (different from sample program):
     - invalid time formats lead to segmenation faults in samplev1, in this program it shows an error msg
 2) ./sample somename.csvLOG give cannot open given files when its not a csv file. Mine shows that its not a csv file
 
+
 Author : Fernando K.A. Ishan - E/18/098
 */
 #include <stdio.h>
@@ -19,10 +20,26 @@ Author : Fernando K.A. Ishan - E/18/098
 #include <ctype.h>  //isdigit()
 
 // maximums
+
+int MAX_ENTRIES = 100;
 // 10,000 entries use about 2.03MB of memory
-int MAX_ENTRIES = 100; // this gets increased at the limit is reached
+// int MAX_ENTRIES = 100; // this gets increased at the limit is reached
 #define MAX_NAME_LENGTH 100
 #define REALLOC_RATIO 1.6
+
+//a node in the linked list
+typedef struct record
+{
+    char name[MAX_NAME_LENGTH];
+    long long numberOfMeetings;
+    long long numberOfParticipants;
+    long long timeDurationInMinutes;
+    struct record *nextRecord;
+} record;
+
+//pointer to head
+record *head = NULL;
+record *tail = NULL;
 
 //this is kind of like the database 😂🤣
 //basically the elements are matched by the index number.
@@ -33,26 +50,28 @@ int *numberOfMeetingsARRAY;
 int *numberOfParticipantsARRAY;
 int *timeDurationInMinutesARRAY;
 
-void parseOptions(int argc, char **argv);                                                 // option parsing
-void processFiles(int argc, char **argv);                                                 // process the files
-void printGraph(int *chosenArrayToSort);                                                  // print the graph
-void printUsage();                                                                        // print how to use the program
-void readFileThenAddThemToArrays(char *fileName);                                         // read from file
-int getIndexOfNameInArray(char *namePointer);                                             // get the index of the name in the array
-int getIndexOfEmptyElementInNamesArray();                                                 // get index of the first empty element in name array to add element to
-void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR); // write a record to all 3 arrays
-int convertHoursToMinutes(char *timeInHours);                                             // convert hours into minutes
-void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR);  // update existing record
-void checkIfStringIsNumerical(char *pointerToString);                                     // check if a string is numerical
-void sortData(int *chosenArray);                                                          // sort the dataset using the -m -t -p
-int getNumberOfRecordsInArrays();                                                         // returns the number of entries in the database
-int getMaximumEnteredNameLength();                                                        // returns the maximum name length currently in namesArray
-void printTopAndLastLineOfEntry(int barLength);                                           // print the first line of each entry in graph
-void printMiddleLineOfEntry(char *name, int numberAfterTheBar, int barLength);            // print the middle line in each entry
-void printEmptyLineInGraph();                                                             // print the empty line after each entry in graph
-void printLastLineOfGraph();                                                              // print the last line of graph
-int getBarLength(int index, int *chosenArray);                                            // get the length of the bar to print
-int getLengthOfNumber(int number);                                                        // get length of int number
+void parseOptions(int argc, char **argv);                                                                         // option parsing
+void processFiles(int argc, char **argv);                                                                         // process the files
+void printGraph();                                                                                                // print the graph
+void printUsage();                                                                                                // print how to use the program
+void readFileThenAddThemToArrays(char *fileName);                                                                 // read from file
+record *getIndexOfNameInArray(char *namePointer, int *doesNotExist);                                              // get the index of the name in the array
+int getIndexOfEmptyElementInNamesArray();                                                                         // get index of the first empty element in name array to add element to
+void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR);                         // write a record to all 3 arrays
+long long convertHoursToMinutes(char *timeInHours);                                                               // convert hours into minutes
+void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR, record *pointerToUpdate); // update existing record
+void checkIfStringIsNumerical(char *pointerToString);                                                             // check if a string is numerical
+void sortData();                                                                                                  // sort the dataset using the -m -t -p
+int getNumberOfRecordsInArrays();                                                                                 // returns the number of entries in the database
+int getMaximumEnteredNameLength();                                                                                // returns the maximum name length currently in namesArray
+void printTopAndLastLineOfEntry(int barLength);                                                                   // print the first line of each entry in graph
+void printMiddleLineOfEntry(char *name, record *thisRecord, int barLength);                                       // print the middle line in each entry
+void printEmptyLineInGraph();                                                                                     // print the empty line after each entry in graph
+void printLastLineOfGraph();                                                                                      // print the last line of graph
+int getBarLength(record *curerntNode);                                                                            // get the length of the bar to print
+int getLengthOfNumber(int number);                                                                                // get length of int number
+record *createNewRecord();                                                                                        // create a new record in linked list
+void printAllNodes(record *currentNode);                                                                          // just to debug
 
 int numberOfElementsInGraph = 10; // -l option given
 int isScaled = 0;                 // flag for --scaled
@@ -63,11 +82,10 @@ char *programName;                // used to get the program name in printUsage(
 
 int main(int argc, char **argv)
 {
-
-    namesARRAY = (char *)malloc(sizeof(int) * MAX_ENTRIES * MAX_NAME_LENGTH);
-    numberOfMeetingsARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
-    numberOfParticipantsARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
-    timeDurationInMinutesARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
+    // namesARRAY = (char *)malloc(sizeof(int) * MAX_ENTRIES * MAX_NAME_LENGTH);
+    // numberOfMeetingsARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
+    // numberOfParticipantsARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
+    // timeDurationInMinutesARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
 
     //make a pointer to the name of program, used when printing the usage
     programName = &(argv[0][0]);
@@ -80,24 +98,26 @@ int main(int argc, char **argv)
 
     // SORTING
     //select which array to sort
-    int *chosenArrayToSort; // which array is chosen by user ?
-    if (isMeeting)
-    {
-        chosenArrayToSort = numberOfMeetingsARRAY;
-    }
-    else if (isParticipants)
-    {
-        chosenArrayToSort = numberOfParticipantsARRAY;
-    }
-    else if (isTime)
-    {
-        chosenArrayToSort = timeDurationInMinutesARRAY;
-    }
+    // int *chosenArrayToSort; // which array is chosen by user ?
+    // if (isMeeting)
+    // {
+    //     chosenArrayToSort = numberOfMeetingsARRAY;
+    // }
+    // else if (isParticipants)
+    // {
+    //     chosenArrayToSort = numberOfParticipantsARRAY;
+    // }
+    // else if (isTime)
+    // {
+    //     chosenArrayToSort = timeDurationInMinutesARRAY;
+    // }
     //sort data according to values in thatt array
-    sortData(chosenArrayToSort);
+    sortData();
+
+    // printAllNodes(head);
     //after this point, only the names array and chosenArray are in order, other arrays dont mean anything because they were not sorted accordingly
 
-    printGraph(chosenArrayToSort);
+    printGraph();
 
     return 0;
 }
@@ -263,24 +283,28 @@ void processFiles(int argc, char **argv)
     }
 }
 
-void printGraph(int *chosenArrayToSort)
+void printGraph()
 {
+    record *currentNode = head;
+    int count = 0;
     //print the graphh
-    puts("");                                             //go to new line
-    for (int i = 1; i < numberOfElementsInGraph + 1; i++) //number of items according to -l
+    puts("");                   //go to new line
+    while (currentNode != NULL) //number of items according to -l
     {
-        //if there is no record there, dont print it , and anything after that
-        if (*(namesARRAY + i * MAX_NAME_LENGTH + 0) == 0)
+
+        int barLength = getBarLength(currentNode);
+
+        printTopAndLastLineOfEntry(barLength);
+        printMiddleLineOfEntry(currentNode->name, currentNode, barLength);
+        printTopAndLastLineOfEntry(barLength);
+        printEmptyLineInGraph();
+
+        currentNode = currentNode->nextRecord;
+        count++;
+        if (count >= numberOfElementsInGraph)
         {
             break;
         }
-
-        int barLength = getBarLength(i, chosenArrayToSort);
-
-        printTopAndLastLineOfEntry(barLength);
-        printMiddleLineOfEntry(namesARRAY + MAX_NAME_LENGTH * i, chosenArrayToSort[i], barLength);
-        printTopAndLastLineOfEntry(barLength);
-        printEmptyLineInGraph();
     }
     printLastLineOfGraph();
 }
@@ -378,12 +402,13 @@ void readFileThenAddThemToArrays(char *fileName)
         }
 
         //check if this name exists in our array
-        int isNameExist = getIndexOfNameInArray(pointerToName);
+        int doesNameExist = 0;
+        record *pointerToExistingRecord = getIndexOfNameInArray(pointerToName, &doesNameExist);
 
-        if (isNameExist)
+        if (doesNameExist)
         {
             //if it exists, update the corresponding records
-            updateExisitingRecord(pointerToName, pointerToParticipants, pointerToTimeInHours);
+            updateExisitingRecord(pointerToName, pointerToParticipants, pointerToTimeInHours, pointerToExistingRecord);
         }
         else
         {
@@ -397,100 +422,81 @@ void readFileThenAddThemToArrays(char *fileName)
 }
 
 //search for name in array and return the index if available, else return 0
-int getIndexOfNameInArray(char *namePointer)
+record *getIndexOfNameInArray(char *namePointer, int *doesNameExist)
 {
-    int limit = getIndexOfEmptyElementInNamesArray() + 1;
+    record *currentNode = head;
+    // int limit = getIndexOfEmptyElementInNamesArray() + 1;
     //loop through the list to find if the name exists
-    for (int i = 1; i < limit; i++)
+    while (currentNode != NULL)
     {
-        if (strcmp(namePointer, namesARRAY + MAX_NAME_LENGTH * i) == 0)
+        if (strcmp(namePointer, currentNode->name) == 0)
         {
             //if the name matches, return the index
-            return i;
+            *doesNameExist = 1;
+            return currentNode;
         }
 
         //if the first char of current element is NULL, dont have to check for names after that as everything will be NULL after that
-        if (*(namesARRAY + MAX_NAME_LENGTH * i + 0) == 0)
+        if (currentNode->name[0] == 0)
         {
             break;
         }
+        currentNode = currentNode->nextRecord;
     }
 
     //name doesnt exist, return 0
     return 0;
 }
 
-//get the index of a empty element in the arrays
-//used to write new elements to the arrays
-int getIndexOfEmptyElementInNamesArray()
-{
-    //look through all the elements in namesArray
-    for (int i = 1; i < MAX_ENTRIES; i++)
-    {
-        //if the names first char is NULL, whole record is null, return the index
-        if (*(namesARRAY + MAX_NAME_LENGTH * i + 0) == 0)
-        {
-            return i;
-        }
-    }
-
-    //if there is no space in the current arrays, realloc them all
-    MAX_ENTRIES = REALLOC_RATIO * MAX_ENTRIES;
-    namesARRAY = (char *)realloc(namesARRAY, sizeof(int) * MAX_ENTRIES * MAX_NAME_LENGTH);
-    numberOfMeetingsARRAY = (int *)realloc(numberOfMeetingsARRAY, sizeof(int) * MAX_ENTRIES);
-    numberOfParticipantsARRAY = (int *)realloc(numberOfParticipantsARRAY, sizeof(int) * MAX_ENTRIES);
-    timeDurationInMinutesARRAY = (int *)realloc(timeDurationInMinutesARRAY, sizeof(int) * MAX_ENTRIES);
-
-    //look through all the elements in namesArray again to find the index
-    for (int i = 1; i < MAX_ENTRIES; i++)
-    {
-        //if the names first char is NULL, whole record is null, return the index
-        if (*(namesARRAY + MAX_NAME_LENGTH * i + 0) == 0)
-        {
-            return i;
-        }
-    }
-
-    printf("getIndexOfEmptyElementInNamesArray() not working properly");
-    return -1;
-}
-
 //write a new record into the arrays
 void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR)
 {
-    //find the index to write to
-    int indexToWriteTo = getIndexOfEmptyElementInNamesArray(nameSTR); //finds index if existing or give new index to write to
+    record *thisRecord = createNewRecord();
+
+    // //find the index to write to
+    // int indexToWriteTo = getIndexOfEmptyElementInNamesArray(nameSTR); //finds index if existing or give new index to write to
 
     //convert strings to int
-    int currentNumberOfParticipantsINT = atoi(pariticipantsSTR);
-    int timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
+    long long currentNumberOfParticipantsINT = atoll(pariticipantsSTR);
+    long long timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
 
     //write the data to the arrays at the correct index
-    strcpy(namesARRAY + MAX_NAME_LENGTH * indexToWriteTo, nameSTR);
-    numberOfMeetingsARRAY[indexToWriteTo] = 1;
-    numberOfParticipantsARRAY[indexToWriteTo] = currentNumberOfParticipantsINT;
-    timeDurationInMinutesARRAY[indexToWriteTo] = timeInMinsINT;
+    strcpy(thisRecord->name, nameSTR);
+    thisRecord->numberOfMeetings = 1;
+    thisRecord->numberOfParticipants = currentNumberOfParticipantsINT;
+    thisRecord->timeDurationInMinutes = timeInMinsINT;
+
+    if (head == NULL)
+    { //if this is the first round
+        head = thisRecord;
+        tail = thisRecord;
+    }
+    else
+    { //if this is not the first record
+        tail->nextRecord = thisRecord;
+        tail = thisRecord;
+    }
 }
 
 //update an existing record, meaning add the current values to the old values
-void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR)
+void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR, record *pointerToUpdate)
 {
     //find the index to write to
-    int indexToWriteTo = getIndexOfNameInArray(nameSTR); //finds index if existing or give new index to write to
+    record *thisRecord = pointerToUpdate; //finds index if existing or give new index to write to
 
     //convert strings to int
-    int currentNumberOfParticipantsINT = atoi(pariticipantsSTR);
-    int timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
+    long long currentNumberOfParticipantsINT = atoll(pariticipantsSTR);
+    long long timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
 
     //write the data to the arrays
     //name is not updated because it cant change 😊
-    numberOfMeetingsARRAY[indexToWriteTo] += 1;
-    numberOfParticipantsARRAY[indexToWriteTo] += currentNumberOfParticipantsINT;
-    timeDurationInMinutesARRAY[indexToWriteTo] += timeInMinsINT;
+    thisRecord->numberOfMeetings += 1;
+    thisRecord->numberOfParticipants += currentNumberOfParticipantsINT;
+    thisRecord->timeDurationInMinutes += timeInMinsINT;
 }
 
 //convert string hours into int minutes
-int convertHoursToMinutes(char *timeInHours)
+long long convertHoursToMinutes(char *timeInHours)
 {
     //format is in hh:mm:ss but sometimes its not hh, its h
 
@@ -499,7 +505,7 @@ int convertHoursToMinutes(char *timeInHours)
     token = strtok(timeInHours, ":");
     /* walk through other tokens */
     int round = 0; //keep the round number to know if its hours or minutes
-    int timeInMinutes = 0;
+    long long timeInMinutes = 0;
     int breakFlag = 0; //stop strtok on unwated strings, otherwise it goes onto empty strings and cause errors
     while (token != NULL)
     {
@@ -510,10 +516,10 @@ int convertHoursToMinutes(char *timeInHours)
         switch (round)
         {
         case 0: //its hours
-            timeInMinutes += atoi(token) * 60;
+            timeInMinutes += atoll(token) * 60;
             break;
         case 1: //its minutes
-            timeInMinutes += atoi(token);
+            timeInMinutes += atoll(token);
             breakFlag = 1; //dont want to read any other strings after this
             break;
         }
@@ -543,64 +549,115 @@ void checkIfStringIsNumerical(char *pointerToString)
 }
 
 //sort the records by the given array
-void sortData(int *chosenArray)
+void sortData()
 {
-    int limit = getNumberOfRecordsInArrays() + 1;
+    // int limit = getNumberOfRecordsInArrays() + 1;
     //bubble sort
+    record *currentNode = head;
     int didAnythingChange = 1;
+    int currentNodeValue = 0;
+    int nextNodeValue = 0;
 
     while (didAnythingChange)
     {
         //set flag to 0, to stop the loop eventually
         didAnythingChange = 0;
         //iterate over all the elements except the last
-        for (int i = 1; i < limit; i++)
+        while (currentNode->nextRecord != NULL)
         {
-            //if the element next to the current one is larger than current one
-            if (chosenArray[i] < chosenArray[i + 1])
+            if (isMeeting)
             {
+                currentNodeValue = currentNode->numberOfMeetings;
+                nextNodeValue = currentNode->nextRecord->numberOfMeetings;
+            }
+            else if (isParticipants)
+            {
+                currentNodeValue = currentNode->numberOfParticipants;
+                nextNodeValue = currentNode->nextRecord->numberOfParticipants;
+            }
+            else if (isTime)
+            {
+                currentNodeValue = currentNode->timeDurationInMinutes;
+                nextNodeValue = currentNode->nextRecord->timeDurationInMinutes;
+            }
+
+            //if the element next to the current one is larger than current one
+            if (currentNodeValue < nextNodeValue)
+            {
+
                 //swap the elements in the chosenArray to sort
-                int tempINT = chosenArray[i];
-                chosenArray[i] = chosenArray[i + 1];
-                chosenArray[i + 1] = tempINT;
+                long long tempLONGLONG = currentNode->numberOfMeetings;
+                currentNode->numberOfMeetings = currentNode->nextRecord->numberOfMeetings;
+                currentNode->nextRecord->numberOfMeetings = tempLONGLONG;
+
+                tempLONGLONG = currentNode->numberOfParticipants;
+                currentNode->numberOfParticipants = currentNode->nextRecord->numberOfParticipants;
+                currentNode->nextRecord->numberOfParticipants = tempLONGLONG;
+
+                tempLONGLONG = currentNode->timeDurationInMinutes;
+                currentNode->timeDurationInMinutes = currentNode->nextRecord->timeDurationInMinutes;
+                currentNode->nextRecord->timeDurationInMinutes = tempLONGLONG;
 
                 //then have to change the names accordingly too. otherwise we dont know which number is whose 😂
                 char tempName[MAX_NAME_LENGTH];
-                strcpy(tempName, namesARRAY + i * MAX_NAME_LENGTH);
-                strcpy(namesARRAY + i * MAX_NAME_LENGTH, namesARRAY + (i + 1) * MAX_NAME_LENGTH);
-                strcpy(namesARRAY + (i + 1) * MAX_NAME_LENGTH, tempName);
-
+                strcpy(tempName, currentNode->name);
+                strcpy(currentNode->name, currentNode->nextRecord->name);
+                strcpy(currentNode->nextRecord->name, tempName);
                 //set flag to 1, then the loop will occur once again
                 //at some point, no changes will be made, then the loop ends
                 didAnythingChange = 1;
             }
+            // go to next node
+            currentNode = currentNode->nextRecord;
         }
+        //go over the whole linked list again
+        currentNode = head;
     }
 
+    int valueToCheck = 0;
+    if (isMeeting)
+    {
+        valueToCheck = head->numberOfMeetings;
+    }
+    else if (isParticipants)
+    {
+        valueToCheck = head->numberOfParticipants;
+    }
+    else if (isTime)
+    {
+        valueToCheck = head->timeDurationInMinutes;
+    }
+    else
+    {
+        puts("valueToCheck error");
+        exit(0);
+    }
     //if the maximum is zero, there is nothing to print anyway
-    if (chosenArray[1] == 0)
+    if (valueToCheck == 0)
     {
         puts("No data to process");
         exit(0);
     }
 }
 
-//get the current number of records in the array
-int getNumberOfRecordsInArrays()
-{
-    return getIndexOfEmptyElementInNamesArray() - 1; //because index 0 is not used
-}
-
 //get the maximum length of a single name entered into the namesArray (until whats specified by -l), used when printing the table to scale
 int getMaximumEnteredNameLength()
 {
     int maxmimumLength = 0;
+    record *currentNode = head;
+    int count = 0;
     //go through the names that will be printed and find the maximum
-    for (int i = 1; i < numberOfElementsInGraph + 1; i++)
+    while (currentNode != NULL)
     {
-        if (strlen(namesARRAY + i * MAX_NAME_LENGTH) > maxmimumLength)
+        if (strlen(currentNode->name) > maxmimumLength)
         {
-            maxmimumLength = strlen(namesARRAY + i * MAX_NAME_LENGTH);
+            maxmimumLength = strlen(currentNode->name);
+        }
+        currentNode = currentNode->nextRecord;
+        count++;
+        if (count >= numberOfElementsInGraph)
+        {
+            break;
         }
     }
 
@@ -631,7 +688,7 @@ void printTopAndLastLineOfEntry(int barLength)
 }
 
 //this prints the middle line of each entry in graph, the line with name and the number
-void printMiddleLineOfEntry(char *name, int numberAfterTheBar, int barLength)
+void printMiddleLineOfEntry(char *name, record *thisRecord, int barLength)
 {
     //print the name
     printf(" %s", name);
@@ -653,6 +710,19 @@ void printMiddleLineOfEntry(char *name, int numberAfterTheBar, int barLength)
     }
 
     //print the number
+    int numberAfterTheBar;
+    if (isMeeting)
+    {
+        numberAfterTheBar = thisRecord->numberOfMeetings;
+    }
+    else if (isParticipants)
+    {
+        numberAfterTheBar = thisRecord->numberOfParticipants;
+    }
+    else if (isTime)
+    {
+        numberAfterTheBar = thisRecord->timeDurationInMinutes;
+    }
     printf("%d", numberAfterTheBar);
 
     //goto next line
@@ -692,18 +762,36 @@ void printLastLineOfGraph()
 }
 
 //get the bar length according to --scaled or not
-int getBarLength(int index, int *chosenArray)
+int getBarLength(record *thisNode)
 {
+    long long largestNumber;
+    int currentCount;
+    if (isMeeting)
+    {
+        largestNumber = head->numberOfMeetings;
+        currentCount = thisNode->numberOfMeetings;
+    }
+    else if (isParticipants)
+    {
+        largestNumber = head->numberOfParticipants;
+        currentCount = thisNode->numberOfParticipants;
+    }
+    else if (isTime)
+    {
+        largestNumber = head->timeDurationInMinutes;
+        currentCount = thisNode->timeDurationInMinutes;
+    }
+
     //first find the maximum bar length, this changes because the name length changes and the maximum graph width is 80
     int numberOfSpacesToKeep = getMaximumEnteredNameLength() + 2;
     int numberOfBars = 80 - numberOfSpacesToKeep - 1;
-    int maximumBarLength = numberOfBars - getLengthOfNumber(chosenArray[1]);
+    int maximumBarLength = numberOfBars - getLengthOfNumber((int)largestNumber);
 
     //if its scaled
     if (isScaled)
     {
         //multiply the maximum bar length by the percentage of the curernt index
-        int numberOfBarsInThisEntry = (int)(maximumBarLength * ((float)chosenArray[index]) / chosenArray[1]);
+        int numberOfBarsInThisEntry = (int)(maximumBarLength * ((float)currentCount) / largestNumber);
 
         return numberOfBarsInThisEntry;
     }
@@ -713,16 +801,28 @@ int getBarLength(int index, int *chosenArray)
 
         //find the sum of all the values
         int sumOfValues = 0;
-        int limit = getIndexOfEmptyElementInNamesArray();
-        for (int i = 1; i < limit; i++)
+        record *tempNode = head;
+        while (tempNode != NULL)
         {
-            sumOfValues += chosenArray[i];
+            if (isMeeting)
+            {
+                sumOfValues += (int)tempNode->numberOfMeetings;
+            }
+            else if (isParticipants)
+            {
+                sumOfValues += (int)tempNode->numberOfParticipants;
+            }
+            else if (isTime)
+            {
+                sumOfValues += (int)tempNode->timeDurationInMinutes;
+            }
+            tempNode = tempNode->nextRecord;
         }
 
         //get the number of bars per unit, this way, the whole bar means the sum of all the entries
         float numberOfBarsPerUnit = maximumBarLength / (float)sumOfValues;
         //get the number of bars for this record
-        int numberOfBarsForThisEntry = (float)(numberOfBarsPerUnit * chosenArray[index]);
+        int numberOfBarsForThisEntry = (float)(numberOfBarsPerUnit * currentCount);
         // printf("%lf", numberOfBarsPerUnit * chosenArray[index]);
         // printf("%d", numberOfBarsForThisEntry);
 
@@ -747,4 +847,30 @@ int getLengthOfNumber(int number)
 
     //return the length
     return length;
+}
+
+//creates a new node and returns a pointer to that node
+record *createNewRecord()
+{
+    record *newNode = (record *)malloc(sizeof(record));
+    newNode->name[0] = 0;
+    newNode->numberOfMeetings = 0;
+    newNode->numberOfParticipants = 0;
+    newNode->timeDurationInMinutes = 0;
+    newNode->nextRecord = NULL;
+
+    return newNode;
+}
+
+//print all the nodes after the given node
+void printAllNodes(record *currentNode)
+{
+    while (currentNode != NULL)
+    {
+        printf("%s\n", currentNode->name);
+        printf("%lld\n", currentNode->numberOfMeetings);
+        printf("%lld\n", currentNode->numberOfParticipants);
+        printf("%lld\n", currentNode->timeDurationInMinutes);
+        currentNode = currentNode->nextRecord;
+    }
 }

@@ -1,5 +1,10 @@
 #/bin/bash
 
+# open file in vi editor with vi mass_uv_regr_csv.sh or vi concat_mass_uv_regr_csv.sh command
+# type in vi :set ff=unix command
+# save file with :wq
+
+
 echo ""
 
 FILE=18098_project2.c
