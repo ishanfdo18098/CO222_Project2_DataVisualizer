@@ -32,7 +32,7 @@ typedef struct record
     struct record *nextRecord;
 } record;
 
-//pointer to head
+//pointer to head and tail
 record *head = NULL;
 record *tail = NULL;
 
@@ -61,10 +61,9 @@ void printTopAndLastLineOfEntry(int barLength, int maximumNameLength);          
 void printMiddleLineOfEntry(char *name, record *thisRecord, int barLength, int maximumNameLength);                // print the middle line in each entry
 void printEmptyLineInGraph();                                                                                     // print the empty line after each entry in graph
 void printLastLineOfGraph();                                                                                      // print the last line of graph
-int getBarLength(record *curerntNode);                                                                            // get the length of the bar to print
+int getBarLength(record *thisNode, int maximumNameLength);                                                        // get the length of the bar to print
 int getLengthOfNumber(int number);                                                                                // get length of int number
-record *createNewRecord();                                                                                        // create a new record in linked list
-void printAllNodes(record *currentNode);                                                                          // just to debug
+record *createNewRecord();                                                                                        // create a new record and return the pointer
 
 int main(int argc, char **argv)
 {
@@ -77,10 +76,13 @@ int main(int argc, char **argv)
     //process the files that are inputted by the user
     processFiles(argc, argv);
 
+    //sort the linked list
     sortData();
 
+    //print the graph
     printGraph();
 
+    //exit the program
     return 0;
 }
 
@@ -245,31 +247,35 @@ void processFiles(int argc, char **argv)
     }
 }
 
+//print the graph
 void printGraph()
 {
+    //start from head
     record *currentNode = head;
+    //keep a count of how many nodes were printed
     int count = 0;
-    //print the graphh
-    puts(""); //go to new line
-    int maximumNameLength = getMaximumEnteredNameLength();
+    puts("");                                              //go to new line
+    int maximumNameLength = getMaximumEnteredNameLength(); //the maximum name length under -l
+    //go through all the nodes in linked list
     while (currentNode != NULL) //number of items according to -l
     {
+        //get the bar length for this entry
+        int barLength = getBarLength(currentNode, maximumNameLength);
 
-        int barLength = getBarLength(currentNode);
+        //print a single node
+        printTopAndLastLineOfEntry(barLength, maximumNameLength);                             //top line
+        printMiddleLineOfEntry(currentNode->name, currentNode, barLength, maximumNameLength); //middle line with name
+        printTopAndLastLineOfEntry(barLength, maximumNameLength);                             //bottom line with bar
+        printEmptyLineInGraph(maximumNameLength);                                             //empty line without bars
 
-        printTopAndLastLineOfEntry(barLength, maximumNameLength);
-        printMiddleLineOfEntry(currentNode->name, currentNode, barLength, maximumNameLength);
-        printTopAndLastLineOfEntry(barLength, maximumNameLength);
-        printEmptyLineInGraph(maximumNameLength);
-
-        currentNode = currentNode->nextRecord;
-        count++;
-        if (count >= numberOfElementsInGraph)
+        currentNode = currentNode->nextRecord; //go to next node
+        count++;                               //printed one more node
+        if (count >= numberOfElementsInGraph)  //if printed nodes > -l -> break
         {
             break;
         }
     }
-    printLastLineOfGraph(maximumNameLength);
+    printLastLineOfGraph(maximumNameLength); //this is the axis
 }
 
 //print how to use the program, the program name is also printed in it
@@ -306,13 +312,9 @@ void readFileThenAddThemToArrays(char *fileName)
         ungetc(c, filePointer); //otherwise this character will be missing when we read the line again
     }
 
-    // char *line = NULL;
-    // size_t len = 0;
-    // ssize_t read;
     int bufferLength = 255;
     char line[bufferLength];
     //read each line
-    // while ((read = getline(&line, &len, filePointer)) != -1)
     while (fgets(line, bufferLength, filePointer))
     {
         // https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
@@ -384,26 +386,23 @@ void readFileThenAddThemToArrays(char *fileName)
     fclose(filePointer);
 }
 
-//search for name in array and return the index if available, else return 0
+//search for name in array and return the pointer if available
 record *getIndexOfNameInArray(char *namePointer, int *doesNameExist)
 {
+    //start at head
     record *currentNode = head;
-    // int limit = getIndexOfEmptyElementInNamesArray() + 1;
+
     //loop through the list to find if the name exists
     while (currentNode != NULL)
     {
         if (strcmp(namePointer, currentNode->name) == 0)
         {
-            //if the name matches, return the index
+            //if the name matches, return the pointer
             *doesNameExist = 1;
             return currentNode;
         }
 
-        //if the first char of current element is NULL, dont have to check for names after that as everything will be NULL after that
-        if (currentNode->name[0] == 0)
-        {
-            break;
-        }
+        //go to next node
         currentNode = currentNode->nextRecord;
     }
 
@@ -416,7 +415,7 @@ void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInH
 {
     record *thisRecord = createNewRecord();
 
-    //convert strings to int
+    //convert strings to long long
     long long currentNumberOfParticipantsINT = atoll(pariticipantsSTR);
     long long timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
 
@@ -427,14 +426,14 @@ void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInH
     thisRecord->timeDurationInMinutes = timeInMinsINT;
 
     if (head == NULL)
-    { //if this is the first round
-        head = thisRecord;
-        tail = thisRecord;
+    {                      //if this is the first round
+        head = thisRecord; //head is this node
+        tail = thisRecord; //tail is also this node
     }
     else
-    { //if this is not the first record
-        tail->nextRecord = thisRecord;
-        tail = thisRecord;
+    {                                  //if this is not the first record
+        tail->nextRecord = thisRecord; //the node after tail is this node
+        tail = thisRecord;             //then this node becomes the new tail
     }
 }
 
@@ -466,6 +465,7 @@ long long convertHoursToMinutes(char *timeInHours)
     int breakFlag = 0; //stop strtok on unwated strings, otherwise it goes onto empty strings and cause errors
     while (token != NULL)
     {
+        //check if time is in valid format
         if (isTime)
         {
             checkIfStringIsNumerical(token);
@@ -493,6 +493,7 @@ long long convertHoursToMinutes(char *timeInHours)
 //check if the string is numerical
 void checkIfStringIsNumerical(char *pointerToString)
 {
+    //create varibale that contains the limit, then strlen wont run every iteration
     int limit = strlen(pointerToString);
     //for each char in the string
     for (int i = 0; i < limit; i++)
@@ -505,15 +506,15 @@ void checkIfStringIsNumerical(char *pointerToString)
     }
 }
 
-//sort the records by the given array
+//sort the records in the linked list
 void sortData()
 {
     //bubble sort
     record *currentNode = head;
     record *previousNode = head;
-    int didAnythingChange = 1;
-    int currentNodeValue = 0;
-    int nextNodeValue = 0;
+    int didAnythingChange = 1; //run the loop again if something is changed
+    int currentNodeValue = 0;  //are we on -m -t -p ?
+    int nextNodeValue = 0;     //are we on -m -t -p ?
 
     while (didAnythingChange)
     {
@@ -522,6 +523,7 @@ void sortData()
         //iterate over all the elements except the last
         while (currentNode->nextRecord != NULL)
         {
+            //choose the correct value accoring to -m -t -p
             if (isMeeting)
             {
                 currentNodeValue = currentNode->numberOfMeetings;
@@ -544,15 +546,17 @@ void sortData()
                 //set flag to 1, then the loop will occur once again
                 //at some point, no changes will be made, then the loop ends
                 didAnythingChange = 1;
-                if (currentNode == head && currentNode->nextRecord != tail) //current is at head, but next is not tail
+                if (currentNode == head && currentNode->nextRecord != tail) //current is at head, but there are more than 3 modes in total
                 {
                     // puts("1");
+
+                    //update the head pointer
                     record *tempCurrentNode = currentNode;
                     head = currentNode->nextRecord;
                     currentNode->nextRecord = currentNode->nextRecord->nextRecord;
                     head->nextRecord = tempCurrentNode;
                 }
-                else if (currentNode->nextRecord == tail && currentNode != head) //next is tail, but current is not head
+                else if (currentNode->nextRecord == tail && currentNode != head) //next is tail, but current is not head. This takes care of the replacing the tail.
                 {
                     // puts("2");
                     previousNode->nextRecord = tail;
@@ -562,9 +566,11 @@ void sortData()
                     //changed the tail position, therefore dont have to check the next node
                     break;
                 }
-                else if (currentNode == head && currentNode->nextRecord == tail) //there are only two nodes
+                else if (currentNode == head && currentNode->nextRecord == tail) //there are only two nodes in the linked list
                 {
                     // puts("3");
+
+                    //swap head and tail
                     record *tempNode = head;
                     tail->nextRecord = tempNode;
                     tempNode->nextRecord = NULL;
@@ -573,7 +579,7 @@ void sortData()
                     break;
                 }
                 else if (currentNode->nextRecord != NULL && currentNode->nextRecord->nextRecord != NULL)
-                { //there are 4 consecutive nodes to sort
+                { //there are 4 consecutive nodes to sort, general case. somewhere in the middle
                     // puts("4");
                     record *nextNode = currentNode->nextRecord;
                     record *secondNextNode = currentNode->nextRecord->nextRecord;
@@ -582,10 +588,13 @@ void sortData()
                     nextNode->nextRecord = currentNode;
                     currentNode->nextRecord = secondNextNode;
                 }
-                else
+                else //there shouldnt be any other case than that. If there is, my code is wrong 😥
                 {
-                    puts("wrong");
+                    puts("sortData: somethign wrong in the code. This must be impossible");
+                    exit(0);
                 }
+
+                //this is the old sorting by copying values over, this was much slower than the new method
 
                 // //swap the elements in the chosenArray to sort
                 // long long tempLONGLONG = currentNode->numberOfMeetings;
@@ -606,15 +615,18 @@ void sortData()
                 // strcpy(currentNode->name, currentNode->nextRecord->name);
                 // strcpy(currentNode->nextRecord->name, tempName);
             }
+
             // go to next node
             previousNode = currentNode;
             currentNode = currentNode->nextRecord;
         }
+
         //go over the whole linked list again
         currentNode = head;
         previousNode = head;
     }
 
+    //check if the maximum number is zero, if its 0 -> error
     int valueToCheck = 0;
     if (isMeeting)
     {
@@ -628,11 +640,12 @@ void sortData()
     {
         valueToCheck = head->timeDurationInMinutes;
     }
-    else
+    else //impossible
     {
         puts("valueToCheck error");
         exit(0);
     }
+
     //if the maximum is zero, there is nothing to print anyway
     if (valueToCheck == 0)
     {
@@ -645,6 +658,7 @@ void sortData()
 int getMaximumEnteredNameLength()
 {
     int maxmimumLength = 0;
+    //start at the head
     record *currentNode = head;
     int count = 0;
     //go through the names that will be printed and find the maximum
@@ -656,6 +670,8 @@ int getMaximumEnteredNameLength()
         }
         currentNode = currentNode->nextRecord;
         count++;
+
+        //if -l count is reached, dont have to check for other names
         if (count >= numberOfElementsInGraph)
         {
             break;
@@ -763,28 +779,30 @@ void printLastLineOfGraph(int maxNameLength)
 }
 
 //get the bar length according to --scaled or not
-int getBarLength(record *thisNode)
+int getBarLength(record *thisNode, int maximumNameLength)
 {
     long long largestNumber;
-    int currentCount;
+    int currentNumber;
+
+    //is it -m -p -t ?
     if (isMeeting)
     {
         largestNumber = head->numberOfMeetings;
-        currentCount = thisNode->numberOfMeetings;
+        currentNumber = thisNode->numberOfMeetings;
     }
     else if (isParticipants)
     {
         largestNumber = head->numberOfParticipants;
-        currentCount = thisNode->numberOfParticipants;
+        currentNumber = thisNode->numberOfParticipants;
     }
     else if (isTime)
     {
         largestNumber = head->timeDurationInMinutes;
-        currentCount = thisNode->timeDurationInMinutes;
+        currentNumber = thisNode->timeDurationInMinutes;
     }
 
     //first find the maximum bar length, this changes because the name length changes and the maximum graph width is 80
-    int numberOfSpacesToKeep = getMaximumEnteredNameLength() + 2;
+    int numberOfSpacesToKeep = maximumNameLength + 2;
     int numberOfBars = 80 - numberOfSpacesToKeep - 1;
     int maximumBarLength = numberOfBars - getLengthOfNumber((int)largestNumber);
 
@@ -792,7 +810,7 @@ int getBarLength(record *thisNode)
     if (isScaled)
     {
         //multiply the maximum bar length by the percentage of the curernt index
-        int numberOfBarsInThisEntry = (int)(maximumBarLength * ((float)currentCount) / largestNumber);
+        int numberOfBarsInThisEntry = (int)(maximumBarLength * ((float)currentNumber) / largestNumber);
 
         return numberOfBarsInThisEntry;
     }
@@ -801,21 +819,21 @@ int getBarLength(record *thisNode)
         //if not scaled
 
         //find the sum of all the values
-        int sumOfValues = 0;
+        long long sumOfValues = 0;
         record *tempNode = head;
         while (tempNode != NULL)
         {
             if (isMeeting)
             {
-                sumOfValues += (int)tempNode->numberOfMeetings;
+                sumOfValues += tempNode->numberOfMeetings;
             }
             else if (isParticipants)
             {
-                sumOfValues += (int)tempNode->numberOfParticipants;
+                sumOfValues += tempNode->numberOfParticipants;
             }
             else if (isTime)
             {
-                sumOfValues += (int)tempNode->timeDurationInMinutes;
+                sumOfValues += tempNode->timeDurationInMinutes;
             }
             tempNode = tempNode->nextRecord;
         }
@@ -823,7 +841,7 @@ int getBarLength(record *thisNode)
         //get the number of bars per unit, this way, the whole bar means the sum of all the entries
         float numberOfBarsPerUnit = maximumBarLength / (float)sumOfValues;
         //get the number of bars for this record
-        int numberOfBarsForThisEntry = (float)(numberOfBarsPerUnit * currentCount);
+        int numberOfBarsForThisEntry = (float)(numberOfBarsPerUnit * currentNumber);
         // printf("%lf", numberOfBarsPerUnit * chosenArray[index]);
         // printf("%d", numberOfBarsForThisEntry);
 
@@ -853,12 +871,16 @@ int getLengthOfNumber(int number)
 //creates a new node and returns a pointer to that node
 record *createNewRecord()
 {
+    //allocate space
     record *newNode = (record *)malloc(sizeof(record));
-    newNode->name[0] = 0;
+
+    //initialize everythin to zero
+    newNode->name[0] = 0; //first char of name is set to 0, so string functions will be correct
     newNode->numberOfMeetings = 0;
     newNode->numberOfParticipants = 0;
     newNode->timeDurationInMinutes = 0;
     newNode->nextRecord = NULL;
 
+    //return the pointer of this new node
     return newNode;
 }
