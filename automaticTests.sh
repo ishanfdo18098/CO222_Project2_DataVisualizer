@@ -1113,7 +1113,7 @@ fi
 j=51
 
 
-for i in {0..20}
+for i in {1..20}
 do
     # echo ""
     lines=$i
@@ -1150,6 +1150,7 @@ do
     else
         echo -e "Test $((j+i)) \033[0;31m FAILED---------------\033[0;0m random generated csv -p, $lines lines"
     fi
+
 done
 
 echo ""

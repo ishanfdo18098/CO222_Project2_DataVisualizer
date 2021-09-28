@@ -20,12 +20,7 @@ Author : Fernando K.A. Ishan - E/18/098
 #include <ctype.h>  //isdigit()
 
 // maximums
-
-int MAX_ENTRIES = 100;
-// 10,000 entries use about 2.03MB of memory
-// int MAX_ENTRIES = 100; // this gets increased at the limit is reached
 #define MAX_NAME_LENGTH 100
-#define REALLOC_RATIO 1.6
 
 //a node in the linked list
 typedef struct record
@@ -41,14 +36,12 @@ typedef struct record
 record *head = NULL;
 record *tail = NULL;
 
-//this is kind of like the database 😂🤣
-//basically the elements are matched by the index number.
-//IMPORTANT: element at index 0 is not used. For some reason it didnt work properly (checking if the name exists didnt work for index 0)
-//therefore, records are save from index 1 and onwards, index 0 is not used for anything
-char *namesARRAY;
-int *numberOfMeetingsARRAY;
-int *numberOfParticipantsARRAY;
-int *timeDurationInMinutesARRAY;
+int numberOfElementsInGraph = 10; // -l option given
+int isScaled = 0;                 // flag for --scaled
+int isMeeting = 0;                // flag for -m
+int isParticipants = 0;           // flag for -p
+int isTime = 0;                   // flag for -t
+char *programName;                // used to get the program name in printUsage()
 
 void parseOptions(int argc, char **argv);                                                                         // option parsing
 void processFiles(int argc, char **argv);                                                                         // process the files
@@ -64,8 +57,8 @@ void checkIfStringIsNumerical(char *pointerToString);                           
 void sortData();                                                                                                  // sort the dataset using the -m -t -p
 int getNumberOfRecordsInArrays();                                                                                 // returns the number of entries in the database
 int getMaximumEnteredNameLength();                                                                                // returns the maximum name length currently in namesArray
-void printTopAndLastLineOfEntry(int barLength);                                                                   // print the first line of each entry in graph
-void printMiddleLineOfEntry(char *name, record *thisRecord, int barLength);                                       // print the middle line in each entry
+void printTopAndLastLineOfEntry(int barLength, int maximumNameLength);                                            // print the first line of each entry in graph
+void printMiddleLineOfEntry(char *name, record *thisRecord, int barLength, int maximumNameLength);                // print the middle line in each entry
 void printEmptyLineInGraph();                                                                                     // print the empty line after each entry in graph
 void printLastLineOfGraph();                                                                                      // print the last line of graph
 int getBarLength(record *curerntNode);                                                                            // get the length of the bar to print
@@ -73,20 +66,8 @@ int getLengthOfNumber(int number);                                              
 record *createNewRecord();                                                                                        // create a new record in linked list
 void printAllNodes(record *currentNode);                                                                          // just to debug
 
-int numberOfElementsInGraph = 10; // -l option given
-int isScaled = 0;                 // flag for --scaled
-int isMeeting = 0;                // flag for -m
-int isParticipants = 0;           // flag for -p
-int isTime = 0;                   // flag for -t
-char *programName;                // used to get the program name in printUsage()
-
 int main(int argc, char **argv)
 {
-    // namesARRAY = (char *)malloc(sizeof(int) * MAX_ENTRIES * MAX_NAME_LENGTH);
-    // numberOfMeetingsARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
-    // numberOfParticipantsARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
-    // timeDurationInMinutesARRAY = (int *)malloc(sizeof(int) * MAX_ENTRIES);
-
     //make a pointer to the name of program, used when printing the usage
     programName = &(argv[0][0]);
 
@@ -96,26 +77,7 @@ int main(int argc, char **argv)
     //process the files that are inputted by the user
     processFiles(argc, argv);
 
-    // SORTING
-    //select which array to sort
-    // int *chosenArrayToSort; // which array is chosen by user ?
-    // if (isMeeting)
-    // {
-    //     chosenArrayToSort = numberOfMeetingsARRAY;
-    // }
-    // else if (isParticipants)
-    // {
-    //     chosenArrayToSort = numberOfParticipantsARRAY;
-    // }
-    // else if (isTime)
-    // {
-    //     chosenArrayToSort = timeDurationInMinutesARRAY;
-    // }
-    //sort data according to values in thatt array
     sortData();
-
-    // printAllNodes(head);
-    //after this point, only the names array and chosenArray are in order, other arrays dont mean anything because they were not sorted accordingly
 
     printGraph();
 
@@ -288,16 +250,17 @@ void printGraph()
     record *currentNode = head;
     int count = 0;
     //print the graphh
-    puts("");                   //go to new line
+    puts(""); //go to new line
+    int maximumNameLength = getMaximumEnteredNameLength();
     while (currentNode != NULL) //number of items according to -l
     {
 
         int barLength = getBarLength(currentNode);
 
-        printTopAndLastLineOfEntry(barLength);
-        printMiddleLineOfEntry(currentNode->name, currentNode, barLength);
-        printTopAndLastLineOfEntry(barLength);
-        printEmptyLineInGraph();
+        printTopAndLastLineOfEntry(barLength, maximumNameLength);
+        printMiddleLineOfEntry(currentNode->name, currentNode, barLength, maximumNameLength);
+        printTopAndLastLineOfEntry(barLength, maximumNameLength);
+        printEmptyLineInGraph(maximumNameLength);
 
         currentNode = currentNode->nextRecord;
         count++;
@@ -306,7 +269,7 @@ void printGraph()
             break;
         }
     }
-    printLastLineOfGraph();
+    printLastLineOfGraph(maximumNameLength);
 }
 
 //print how to use the program, the program name is also printed in it
@@ -453,9 +416,6 @@ void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInH
 {
     record *thisRecord = createNewRecord();
 
-    // //find the index to write to
-    // int indexToWriteTo = getIndexOfEmptyElementInNamesArray(nameSTR); //finds index if existing or give new index to write to
-
     //convert strings to int
     long long currentNumberOfParticipantsINT = atoll(pariticipantsSTR);
     long long timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
@@ -479,11 +439,8 @@ void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInH
 }
 
 //update an existing record, meaning add the current values to the old values
-void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR, record *pointerToUpdate)
+void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR, record *thisRecord)
 {
-    //find the index to write to
-    record *thisRecord = pointerToUpdate; //finds index if existing or give new index to write to
-
     //convert strings to int
     long long currentNumberOfParticipantsINT = atoll(pariticipantsSTR);
     long long timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
@@ -551,9 +508,9 @@ void checkIfStringIsNumerical(char *pointerToString)
 //sort the records by the given array
 void sortData()
 {
-    // int limit = getNumberOfRecordsInArrays() + 1;
     //bubble sort
     record *currentNode = head;
+    record *previousNode = head;
     int didAnythingChange = 1;
     int currentNodeValue = 0;
     int nextNodeValue = 0;
@@ -584,34 +541,78 @@ void sortData()
             //if the element next to the current one is larger than current one
             if (currentNodeValue < nextNodeValue)
             {
-
-                //swap the elements in the chosenArray to sort
-                long long tempLONGLONG = currentNode->numberOfMeetings;
-                currentNode->numberOfMeetings = currentNode->nextRecord->numberOfMeetings;
-                currentNode->nextRecord->numberOfMeetings = tempLONGLONG;
-
-                tempLONGLONG = currentNode->numberOfParticipants;
-                currentNode->numberOfParticipants = currentNode->nextRecord->numberOfParticipants;
-                currentNode->nextRecord->numberOfParticipants = tempLONGLONG;
-
-                tempLONGLONG = currentNode->timeDurationInMinutes;
-                currentNode->timeDurationInMinutes = currentNode->nextRecord->timeDurationInMinutes;
-                currentNode->nextRecord->timeDurationInMinutes = tempLONGLONG;
-
-                //then have to change the names accordingly too. otherwise we dont know which number is whose 😂
-                char tempName[MAX_NAME_LENGTH];
-                strcpy(tempName, currentNode->name);
-                strcpy(currentNode->name, currentNode->nextRecord->name);
-                strcpy(currentNode->nextRecord->name, tempName);
                 //set flag to 1, then the loop will occur once again
                 //at some point, no changes will be made, then the loop ends
                 didAnythingChange = 1;
+                if (currentNode == head && currentNode->nextRecord != tail) //current is at head, but next is not tail
+                {
+                    // puts("1");
+                    record *tempCurrentNode = currentNode;
+                    head = currentNode->nextRecord;
+                    currentNode->nextRecord = currentNode->nextRecord->nextRecord;
+                    head->nextRecord = tempCurrentNode;
+                }
+                else if (currentNode->nextRecord == tail && currentNode != head) //next is tail, but current is not head
+                {
+                    // puts("2");
+                    previousNode->nextRecord = tail;
+                    tail->nextRecord = currentNode;
+                    currentNode->nextRecord = NULL;
+                    tail = currentNode;
+                    //changed the tail position, therefore dont have to check the next node
+                    break;
+                }
+                else if (currentNode == head && currentNode->nextRecord == tail) //there are only two nodes
+                {
+                    // puts("3");
+                    record *tempNode = head;
+                    tail->nextRecord = tempNode;
+                    tempNode->nextRecord = NULL;
+                    head = tail;
+                    tail = tempNode;
+                    break;
+                }
+                else if (currentNode->nextRecord != NULL && currentNode->nextRecord->nextRecord != NULL)
+                { //there are 4 consecutive nodes to sort
+                    // puts("4");
+                    record *nextNode = currentNode->nextRecord;
+                    record *secondNextNode = currentNode->nextRecord->nextRecord;
+
+                    previousNode->nextRecord = nextNode;
+                    nextNode->nextRecord = currentNode;
+                    currentNode->nextRecord = secondNextNode;
+                }
+                else
+                {
+                    puts("wrong");
+                }
+
+                // //swap the elements in the chosenArray to sort
+                // long long tempLONGLONG = currentNode->numberOfMeetings;
+                // currentNode->numberOfMeetings = currentNode->nextRecord->numberOfMeetings;
+                // currentNode->nextRecord->numberOfMeetings = tempLONGLONG;
+
+                // tempLONGLONG = currentNode->numberOfParticipants;
+                // currentNode->numberOfParticipants = currentNode->nextRecord->numberOfParticipants;
+                // currentNode->nextRecord->numberOfParticipants = tempLONGLONG;
+
+                // tempLONGLONG = currentNode->timeDurationInMinutes;
+                // currentNode->timeDurationInMinutes = currentNode->nextRecord->timeDurationInMinutes;
+                // currentNode->nextRecord->timeDurationInMinutes = tempLONGLONG;
+
+                // //then have to change the names accordingly too. otherwise we dont know which number is whose 😂
+                // char tempName[MAX_NAME_LENGTH];
+                // strcpy(tempName, currentNode->name);
+                // strcpy(currentNode->name, currentNode->nextRecord->name);
+                // strcpy(currentNode->nextRecord->name, tempName);
             }
             // go to next node
+            previousNode = currentNode;
             currentNode = currentNode->nextRecord;
         }
         //go over the whole linked list again
         currentNode = head;
+        previousNode = head;
     }
 
     int valueToCheck = 0;
@@ -666,10 +667,10 @@ int getMaximumEnteredNameLength()
 }
 
 //this prints the top and the last line of each entry in the graph, the one below the name and above the name
-void printTopAndLastLineOfEntry(int barLength)
+void printTopAndLastLineOfEntry(int barLength, int maximumNameLength)
 {
     //get the number of spaces to keep after the name, changes with the longest name
-    int numberOfSpacesToKeep = getMaximumEnteredNameLength() + 2;
+    int numberOfSpacesToKeep = maximumNameLength + 2;
     //print the spaces
     for (int i = 0; i < numberOfSpacesToKeep; i++)
     {
@@ -688,13 +689,13 @@ void printTopAndLastLineOfEntry(int barLength)
 }
 
 //this prints the middle line of each entry in graph, the line with name and the number
-void printMiddleLineOfEntry(char *name, record *thisRecord, int barLength)
+void printMiddleLineOfEntry(char *name, record *thisRecord, int barLength, int maximumNameLength)
 {
     //print the name
     printf(" %s", name);
 
     //print the correct number of spaces
-    int numberOfSpaces = getMaximumEnteredNameLength() - strlen(name) + 1;
+    int numberOfSpaces = maximumNameLength - strlen(name) + 1;
     for (int i = 0; i < numberOfSpaces; i++)
     {
         printf(" ");
@@ -730,17 +731,17 @@ void printMiddleLineOfEntry(char *name, record *thisRecord, int barLength)
 }
 
 //this prints the empty line after each entry in the graph
-void printEmptyLineInGraph()
+void printEmptyLineInGraph(int maxLength)
 {
     //barlength is zero when its a empty line.
-    printTopAndLastLineOfEntry(0);
+    printTopAndLastLineOfEntry(0, maxLength);
 }
 
 //this prints the last line of the graph, the line with the corner
-void printLastLineOfGraph()
+void printLastLineOfGraph(int maxNameLength)
 {
     //print the number of spaces before the corner
-    int numberOfSpacesToKeep = getMaximumEnteredNameLength() + 2;
+    int numberOfSpacesToKeep = maxNameLength + 2;
     for (int i = 0; i < numberOfSpacesToKeep; i++)
     {
         printf(" ");
@@ -860,17 +861,4 @@ record *createNewRecord()
     newNode->nextRecord = NULL;
 
     return newNode;
-}
-
-//print all the nodes after the given node
-void printAllNodes(record *currentNode)
-{
-    while (currentNode != NULL)
-    {
-        printf("%s\n", currentNode->name);
-        printf("%lld\n", currentNode->numberOfMeetings);
-        printf("%lld\n", currentNode->numberOfParticipants);
-        printf("%lld\n", currentNode->timeDurationInMinutes);
-        currentNode = currentNode->nextRecord;
-    }
 }
