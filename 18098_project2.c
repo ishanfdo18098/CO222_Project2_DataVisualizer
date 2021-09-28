@@ -18,10 +18,11 @@ Author : Fernando K.A. Ishan - E/18/098
 #include <string.h> //strlen()
 #include <ctype.h>  //isdigit()
 
-//maximums
-int MAX_ENTRIES = 100; //10,000 entries use about 2.03MB of memory
+// maximums
+// 10,000 entries use about 2.03MB of memory
+int MAX_ENTRIES = 100; // this gets increased at the limit is reached
 #define MAX_NAME_LENGTH 100
-#define REALLOC_RATIO 2
+#define REALLOC_RATIO 1.6
 
 //this is kind of like the database 😂🤣
 //basically the elements are matched by the index number.
