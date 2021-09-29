@@ -48,7 +48,7 @@ void processFiles(int argc, char **argv);                                       
 void printGraph();                                                                                                // print the graph
 void printUsage();                                                                                                // print how to use the program
 void readFileThenAddThemToArrays(char *fileName);                                                                 // read from file
-record *getIndexOfNameInArray(char *namePointer, int *doesNotExist);                                              // get the index of the name in the array
+record *getPointerOfNameInLinkedList(char *namePointer, int *doesNotExist);                                              // get the index of the name in the array
 int getIndexOfEmptyElementInNamesArray();                                                                         // get index of the first empty element in name array to add element to
 void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR);                         // write a record to all 3 arrays
 long long convertHoursToMinutes(char *timeInHours);                                                               // convert hours into minutes
@@ -368,7 +368,7 @@ void readFileThenAddThemToArrays(char *fileName)
 
         //check if this name exists in our array
         int doesNameExist = 0;
-        record *pointerToExistingRecord = getIndexOfNameInArray(pointerToName, &doesNameExist);
+        record *pointerToExistingRecord = getPointerOfNameInLinkedList(pointerToName, &doesNameExist);
 
         if (doesNameExist)
         {
@@ -387,7 +387,7 @@ void readFileThenAddThemToArrays(char *fileName)
 }
 
 //search for name in array and return the pointer if available
-record *getIndexOfNameInArray(char *namePointer, int *doesNameExist)
+record *getPointerOfNameInLinkedList(char *namePointer, int *doesNameExist)
 {
     //start at head
     record *currentNode = head;
