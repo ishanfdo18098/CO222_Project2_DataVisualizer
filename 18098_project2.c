@@ -48,7 +48,7 @@ void processFiles(int argc, char **argv);                                       
 void printGraph();                                                                                                // print the graph
 void printUsage();                                                                                                // print how to use the program
 void readFileThenAddThemToArrays(char *fileName);                                                                 // read from file
-record *getPointerOfNameInLinkedList(char *namePointer, int *doesNotExist);                                              // get the index of the name in the array
+record *getPointerOfNameInLinkedList(char *namePointer, int *doesNotExist);                                       // get the index of the name in the array
 int getIndexOfEmptyElementInNamesArray();                                                                         // get index of the first empty element in name array to add element to
 void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR);                         // write a record to all 3 arrays
 long long convertHoursToMinutes(char *timeInHours);                                                               // convert hours into minutes
@@ -569,7 +569,6 @@ void sortData()
                 else if (currentNode == head && currentNode->nextRecord == tail) //there are only two nodes in the linked list
                 {
                     // puts("3");
-
                     //swap head and tail
                     record *tempNode = head;
                     tail->nextRecord = tempNode;
@@ -727,7 +726,7 @@ void printMiddleLineOfEntry(char *name, record *thisRecord, int barLength, int m
     }
 
     //print the number
-    int numberAfterTheBar;
+    long long numberAfterTheBar;
     if (isMeeting)
     {
         numberAfterTheBar = thisRecord->numberOfMeetings;
@@ -740,7 +739,7 @@ void printMiddleLineOfEntry(char *name, record *thisRecord, int barLength, int m
     {
         numberAfterTheBar = thisRecord->timeDurationInMinutes;
     }
-    printf("%d", numberAfterTheBar);
+    printf("%lld", numberAfterTheBar);
 
     //goto next line
     puts("");
