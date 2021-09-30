@@ -593,6 +593,8 @@ void sortData()
                     exit(0);
                 }
 
+                //I made the sorting method above, but the same is done in a way easier method here https://www.geeksforgeeks.org/bubble-sort-for-linked-list-by-swapping-nodes/
+
                 //this is the old sorting by copying values over, this was much slower than the new method
 
                 // //swap the elements in the chosenArray to sort
