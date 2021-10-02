@@ -7,13 +7,6 @@
 
 echo ""
 
-FILE=18098_project2.c
-if test -f "$FILE"; then
-    output=$(gcc $FILE -Wall)
-    echo "Compiled File"
-    sleep 0.3
-fi
-
 echo "Ashley_Parry,25,1:38:06
 Namal_Perera,12,2:24:56
 Namal_Perera,197,2:04:01

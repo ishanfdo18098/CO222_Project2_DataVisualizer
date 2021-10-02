@@ -1,1 +1,1 @@
-scp automaticTests.sh 18098_project2.c samplev1 testBoth.sh timeToRunBoth.sh e18098@aiken.ce.pdn.ac.lk:~/co222/project2/
+scp automaticTests.sh 18098_project2.c samplev1 testBoth.sh Makefile timeToRunBoth.sh e18098@aiken.ce.pdn.ac.lk:~/co222/project2/
