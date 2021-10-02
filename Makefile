@@ -14,3 +14,6 @@ testall:
 	gprof a.out gmon.out > txt
 	echo ""
 	head -n 30 txt
+
+upload:
+	scp automaticTests.sh 18098_project2.c samplev1 testBoth.sh Makefile timeToRunBoth.sh e18098@aiken.ce.pdn.ac.lk:~/co222/project2/
