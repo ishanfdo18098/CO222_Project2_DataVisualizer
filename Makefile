@@ -1,5 +1,4 @@
 c_code=18098_project2.c
-all : a.out
 
 a.out : $(c_code)
 	gcc $(c_code) -Wall
@@ -16,4 +15,8 @@ testall:
 	head -n 30 txt
 
 upload:
-	scp automaticTests.sh 18098_project2.c samplev1 testBoth.sh Makefile timeToRunBoth.sh e18098@aiken.ce.pdn.ac.lk:~/co222/project2/
+	scp automaticTests.sh $(c_code) samplev1 testBoth.sh Makefile timeToRunBoth.sh e18098@aiken.ce.pdn.ac.lk:~/co222/project2/
+
+rungprof:
+	gprof a.out gmon.out > txt
+	head -n 30 txt
