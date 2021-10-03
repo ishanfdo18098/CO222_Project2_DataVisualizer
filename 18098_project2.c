@@ -19,13 +19,10 @@ Author : Fernando K.A. Ishan - E/18/098
 #include <string.h> //strlen()
 #include <ctype.h>  //isdigit()
 
-// maximums
-#define MAX_NAME_LENGTH 100
-
 //a node in the linked list
 typedef struct record
 {
-    char name[MAX_NAME_LENGTH];
+    char *name;
     long long numberOfMeetings;
     long long numberOfParticipants;
     long long timeDurationInMinutes;
@@ -63,7 +60,7 @@ void printEmptyLineInGraph();                                                   
 void printLastLineOfGraph();                                                                                      // print the last line of graph
 int getBarLength(record *thisNode, int maximumNameLength);                                                        // get the length of the bar to print
 int getLengthOfNumber(int number);                                                                                // get length of int number
-record *createNewRecord();                                                                                        // create a new record and return the pointer
+record *createNewRecord(char *namePointer);                                                                       // create a new record and return the pointer
 
 int main(int argc, char **argv)
 {
@@ -413,14 +410,13 @@ record *getPointerOfNameInLinkedList(char *namePointer, int *doesNameExist)
 //write a new record into the arrays
 void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR)
 {
-    record *thisRecord = createNewRecord();
+    record *thisRecord = createNewRecord(nameSTR); //create a new record with given name
 
     //convert strings to long long
     long long currentNumberOfParticipantsINT = atoll(pariticipantsSTR);
     long long timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
 
     //write the data to the arrays at the correct index
-    strcpy(thisRecord->name, nameSTR);
     thisRecord->numberOfMeetings = 1;
     thisRecord->numberOfParticipants = currentNumberOfParticipantsINT;
     thisRecord->timeDurationInMinutes = timeInMinsINT;
@@ -870,13 +866,16 @@ int getLengthOfNumber(int number)
 }
 
 //creates a new node and returns a pointer to that node
-record *createNewRecord()
+record *createNewRecord(char *nameSTR)
 {
     //allocate space
     record *newNode = (record *)malloc(sizeof(record));
 
-    //initialize everythin to zero
-    newNode->name[0] = 0; //first char of name is set to 0, so string functions will be correct
+    //allocate space for a name
+    char *namePointer = (char *)malloc(sizeof(char) * strlen(nameSTR) + 1);
+    strcpy(namePointer, nameSTR);
+    newNode->name = namePointer; //point it the name
+
     newNode->numberOfMeetings = 0;
     newNode->numberOfParticipants = 0;
     newNode->timeDurationInMinutes = 0;

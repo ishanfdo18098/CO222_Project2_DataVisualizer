@@ -8,9 +8,10 @@ clean:
 
 testall:
 	gcc $(c_code) -Wall -pg
-	bash automaticTests.sh
+	bash automaticTests.sh $(l)
 	echo ""
 	gprof a.out gmon.out > txt
+	rm gmon.out
 	echo ""
 	head -n 30 txt
 
