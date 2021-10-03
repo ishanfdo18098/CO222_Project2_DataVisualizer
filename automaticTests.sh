@@ -1040,8 +1040,7 @@ echo  "0,0,0:0:00
 4,494,0:494:00
 5,495,0:495:00
 6,496,0:496:00
-7,497,0:497:00
-" > meetingData.csv
+7,497,0:497:00" > meetingData.csv
 output=$(./a.out meetingData.csv)
 output1=$(./samplev1 meetingData.csv)
 if [ "$output" = "$output1" ]; then
@@ -1049,6 +1048,7 @@ if [ "$output" = "$output1" ]; then
 else
     echo -e "Test 45 \033[0;31m FAILED---------------\033[0;0m meetingData.csv float double check"
 fi
+
 
 output=$(./a.out meetingData.csv --scaled)
 output1=$(./samplev1 meetingData.csv --scaled)
@@ -1166,14 +1166,13 @@ do
     else
         echo -e "Test $((j+i)) \033[0;31m FAILED---------------\033[0;0m random generated csv -p, $lines lines"
     fi
-
 done
 
 echo ""
 lines=$1
 if [ -z "$1" ]
 then
-    lines=20000
+    lines=50000
 fi
 rm meetingData.csv
 touch meetingData.csv
@@ -1184,7 +1183,7 @@ int main()
     FILE *fp = fopen(\"meetingData.csv\", \"w\");
     for (int i = 0; i < $lines; i++)
     {
-        fprintf(fp, \"abd%d,%d,1:%d:00\n\",i,i,i);
+        fprintf(fp, \"abasdfasdasdfd%d,%d,1:%d:00\n\",i,999999-i,i);
     }
     fclose(fp);
     return 0;
@@ -1200,11 +1199,46 @@ SECONDS=0
 output1=$(./samplev1 meetingData.csv -p)
 echo "sameplev1 took $SECONDS seconds"
 if [ "$output" = "$output1" ]; then
-    echo -e "Test $((j+i)) \033[0;32m PASS \033[0;0m long csv -p, $lines lines"
+    echo -e "Test $((j+i)) \033[0;32m PASS \033[0;0m long csv -p largest values at  top, $lines lines"
 else
-    echo -e "Test $((j+i)) \033[0;31m FAILED---------------\033[0;0m long csv -p, $lines lines"
+    echo -e "Test $((j+i)) \033[0;31m FAILED---------------\033[0;0m long csv -p largest values at  top, $lines lines"
 fi
 
+echo ""
+lines=$1
+if [ -z "$1" ]
+then
+    lines=50000
+fi
+rm meetingData.csv
+touch meetingData.csv
+echo "#include <stdio.h>
+
+int main()
+{
+    FILE *fp = fopen(\"meetingData.csv\", \"w\");
+    for (int i = 0; i < $lines; i++)
+    {
+        fprintf(fp, \"abasdfasdasdfd%d,%d,1:%d:00\n\",i,i,i);
+    }
+    fclose(fp);
+    return 0;
+}" > createLongCSV.c
+gcc createLongCSV.c -o longCSV
+./longCSV
+echo "long csv file created, $lines lines"
+echo "testing programs now, this will take some time"
+SECONDS=0
+output=$(./a.out meetingData.csv -p)
+echo "your program took $SECONDS seconds"
+SECONDS=0
+output1=$(./samplev1 meetingData.csv -p)
+echo "sameplev1 took $SECONDS seconds"
+if [ "$output" = "$output1" ]; then
+    echo -e "Test $((j+i+1)) \033[0;32m PASS \033[0;0m long csv -p largest values at  bottom, $lines lines"
+else
+    echo -e "Test $((j+i+1)) \033[0;31m FAILED---------------\033[0;0m long csv -p largest values at  bottom, $lines lines"
+fi
 
 echo "Ashley_Parry,25,1:38:06
 Namal_Perera,12,2:24:56

@@ -7,13 +7,8 @@ clean:
 	rm -f a.out txt createLongCSV.c longCSV gmon.out test 
 
 testall:
-	gcc $(c_code) -Wall -pg
+	gcc $(c_code) -Wall
 	bash automaticTests.sh $(l)
-	echo ""
-	gprof a.out gmon.out > txt
-	rm gmon.out
-	echo ""
-	head -n 30 txt
 
 upload:
 	scp automaticTests.sh $(c_code) samplev1 testBoth.sh Makefile timeToRunBoth.sh e18098@aiken.ce.pdn.ac.lk:~/co222/project2/
