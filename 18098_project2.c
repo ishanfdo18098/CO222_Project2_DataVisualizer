@@ -35,7 +35,8 @@ typedef struct names
     struct names *nextName;
 } names;
 
-names *array[255] = {}; //there are 255 linked lists for all 255 chars in char type
+names *array[255] = {}; //there are 255 linked lists for all 255 chars in char type.
+//There are only 26 characters in alphabet. but this also works 😂
 
 //pointer to head and tail
 record *head = NULL;
