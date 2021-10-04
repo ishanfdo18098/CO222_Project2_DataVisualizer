@@ -14,5 +14,7 @@ upload:
 	scp automaticTests.sh $(c_code) samplev1 testBoth.sh Makefile timeToRunBoth.sh e18098@aiken.ce.pdn.ac.lk:~/co222/project2/
 
 rungprof:
+	gcc $(c_code) -Wall -pg
+	bash automaticTests.sh $(l)
 	gprof a.out gmon.out > txt
 	head -n 30 txt

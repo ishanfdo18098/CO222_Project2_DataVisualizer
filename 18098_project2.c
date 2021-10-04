@@ -23,9 +23,7 @@ Author : Fernando K.A. Ishan - E/18/098
 typedef struct record
 {
     char *name;
-    long long numberOfMeetings;
-    long long numberOfParticipants;
-    long long timeDurationInMinutes;
+    long long data;
     struct record *nextRecord;
 } record;
 
@@ -412,15 +410,23 @@ void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInH
 {
     record *thisRecord = createNewRecord(nameSTR); //create a new record with given name
 
-    //convert strings to long long
-    long long currentNumberOfParticipantsINT = atoll(pariticipantsSTR);
-    long long timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
+    //add data accordingly
+    if (isMeeting)
+    {
+        thisRecord->data = 1;
+    }
+    else if (isTime)
+    {
+        long long timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
+        thisRecord->data = timeInMinsINT;
+    }
+    else if (isParticipants)
+    {
+        long long currentNumberOfParticipantsINT = atoll(pariticipantsSTR);
+        thisRecord->data = currentNumberOfParticipantsINT;
+    }
 
-    //write the data to the arrays at the correct index
-    thisRecord->numberOfMeetings = 1;
-    thisRecord->numberOfParticipants = currentNumberOfParticipantsINT;
-    thisRecord->timeDurationInMinutes = timeInMinsINT;
-
+    //add the new node the the linked list
     if (head == NULL)
     {                      //if this is the first round
         head = thisRecord; //head is this node
@@ -436,15 +442,21 @@ void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInH
 //update an existing record, meaning add the current values to the old values
 void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR, record *thisRecord)
 {
-    //convert strings to int
-    long long currentNumberOfParticipantsINT = atoll(pariticipantsSTR);
-    long long timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
-
-    //write the data to the arrays
-    //name is not updated because it cant change 😊
-    thisRecord->numberOfMeetings += 1;
-    thisRecord->numberOfParticipants += currentNumberOfParticipantsINT;
-    thisRecord->timeDurationInMinutes += timeInMinsINT;
+    //update the existing record
+    if (isParticipants)
+    {
+        long long currentNumberOfParticipantsINT = atoll(pariticipantsSTR);
+        thisRecord->data += currentNumberOfParticipantsINT;
+    }
+    else if (isTime)
+    {
+        long long timeInMinsINT = convertHoursToMinutes(timeInHoursSTR);
+        thisRecord->data += timeInMinsINT;
+    }
+    else if (isMeeting)
+    {
+        thisRecord->data += 1;
+    }
 }
 
 //convert string hours into int minutes
@@ -519,22 +531,9 @@ void sortData()
         //iterate over all the elements except the last
         while (currentNode->nextRecord != NULL)
         {
-            //choose the correct value accoring to -m -t -p
-            if (isMeeting)
-            {
-                currentNodeValue = currentNode->numberOfMeetings;
-                nextNodeValue = currentNode->nextRecord->numberOfMeetings;
-            }
-            else if (isParticipants)
-            {
-                currentNodeValue = currentNode->numberOfParticipants;
-                nextNodeValue = currentNode->nextRecord->numberOfParticipants;
-            }
-            else if (isTime)
-            {
-                currentNodeValue = currentNode->timeDurationInMinutes;
-                nextNodeValue = currentNode->nextRecord->timeDurationInMinutes;
-            }
+            //get values of current and next
+            currentNodeValue = currentNode->data;
+            nextNodeValue = currentNode->nextRecord->data;
 
             //if the element next to the current one is larger than current one
             if (currentNodeValue < nextNodeValue)
@@ -623,28 +622,8 @@ void sortData()
         previousNode = head;
     }
 
-    //check if the maximum number is zero, if its 0 -> error
-    int valueToCheck = 0;
-    if (isMeeting)
-    {
-        valueToCheck = head->numberOfMeetings;
-    }
-    else if (isParticipants)
-    {
-        valueToCheck = head->numberOfParticipants;
-    }
-    else if (isTime)
-    {
-        valueToCheck = head->timeDurationInMinutes;
-    }
-    else //impossible
-    {
-        puts("valueToCheck error");
-        exit(0);
-    }
-
     //if the maximum is zero, there is nothing to print anyway
-    if (valueToCheck == 0)
+    if (head->data == 0)
     {
         puts("No data to process");
         exit(0);
@@ -724,20 +703,7 @@ void printMiddleLineOfEntry(char *name, record *thisRecord, int barLength, int m
     }
 
     //print the number
-    long long numberAfterTheBar;
-    if (isMeeting)
-    {
-        numberAfterTheBar = thisRecord->numberOfMeetings;
-    }
-    else if (isParticipants)
-    {
-        numberAfterTheBar = thisRecord->numberOfParticipants;
-    }
-    else if (isTime)
-    {
-        numberAfterTheBar = thisRecord->timeDurationInMinutes;
-    }
-    printf("%lld", numberAfterTheBar);
+    printf("%lld", thisRecord->data);
 
     //goto next line
     puts("");
@@ -781,22 +747,8 @@ int getBarLength(record *thisNode, int maximumNameLength)
     long long largestNumber;
     int currentNumber;
 
-    //is it -m -p -t ?
-    if (isMeeting)
-    {
-        largestNumber = head->numberOfMeetings;
-        currentNumber = thisNode->numberOfMeetings;
-    }
-    else if (isParticipants)
-    {
-        largestNumber = head->numberOfParticipants;
-        currentNumber = thisNode->numberOfParticipants;
-    }
-    else if (isTime)
-    {
-        largestNumber = head->timeDurationInMinutes;
-        currentNumber = thisNode->timeDurationInMinutes;
-    }
+    largestNumber = head->data;
+    currentNumber = thisNode->data;
 
     //first find the maximum bar length, this changes because the name length changes and the maximum graph width is 80
     int numberOfSpacesToKeep = maximumNameLength + 2;
@@ -820,18 +772,7 @@ int getBarLength(record *thisNode, int maximumNameLength)
         record *tempNode = head;
         while (tempNode != NULL)
         {
-            if (isMeeting)
-            {
-                sumOfValues += tempNode->numberOfMeetings;
-            }
-            else if (isParticipants)
-            {
-                sumOfValues += tempNode->numberOfParticipants;
-            }
-            else if (isTime)
-            {
-                sumOfValues += tempNode->timeDurationInMinutes;
-            }
+            sumOfValues += tempNode->data;
             tempNode = tempNode->nextRecord;
         }
 
@@ -876,9 +817,8 @@ record *createNewRecord(char *nameSTR)
     strcpy(namePointer, nameSTR);
     newNode->name = namePointer; //point it the name
 
-    newNode->numberOfMeetings = 0;
-    newNode->numberOfParticipants = 0;
-    newNode->timeDurationInMinutes = 0;
+    //set other things to zero
+    newNode->data = 0;
     newNode->nextRecord = NULL;
 
     //return the pointer of this new node
