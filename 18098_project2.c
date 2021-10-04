@@ -27,6 +27,16 @@ typedef struct record
     struct record *nextRecord;
 } record;
 
+//keep linked lists of names starting from same character
+//Thank you CO222 discussion 😍
+typedef struct names
+{
+    record *record;
+    struct names *nextName;
+} names;
+
+names *array[255] = {}; //there are 255 linked lists for all 255 chars in char type
+
 //pointer to head and tail
 record *head = NULL;
 record *tail = NULL;
@@ -384,21 +394,21 @@ void readFileThenAddThemToArrays(char *fileName)
 //search for name in array and return the pointer if available
 record *getPointerOfNameInLinkedList(char *namePointer, int *doesNameExist)
 {
-    //start at head
-    record *currentNode = head;
+    //select the head from the array of linked lists that start from a character
+    names *currentNode = array[(int)namePointer[0]];
 
     //loop through the list to find if the name exists
     while (currentNode != NULL)
     {
-        if (strcmp(namePointer, currentNode->name) == 0)
+        if (strcmp(namePointer, currentNode->record->name) == 0)
         {
             //if the name matches, return the pointer
             *doesNameExist = 1;
-            return currentNode;
+            return currentNode->record;
         }
 
         //go to next node
-        currentNode = currentNode->nextRecord;
+        currentNode = currentNode->nextName;
     }
 
     //name doesnt exist, return 0
@@ -811,6 +821,23 @@ record *createNewRecord(char *nameSTR)
 {
     //allocate space
     record *newNode = (record *)malloc(sizeof(record));
+
+    //add this new element to the other linked list too
+    int index = (int)nameSTR[0];
+    if (array[index] == NULL)
+    { //if there are no names starting from that, this is the first one
+        names *newName = (names *)malloc(sizeof(names));
+        newName->record = newNode;
+        newName->nextName = NULL;
+        array[index] = newName;
+    }
+    else
+    { // if there are exisitng ones, insert this name at head
+        names *newName = (names *)malloc(sizeof(names));
+        newName->record = newNode;
+        newName->nextName = array[index];
+        array[index] = newName;
+    }
 
     //allocate space for a name
     char *namePointer = (char *)malloc(sizeof(char) * strlen(nameSTR) + 1);
