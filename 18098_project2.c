@@ -29,13 +29,13 @@ typedef struct record
 
 //keep linked lists of names starting from same character
 //Thank you CO222 discussion 😍
-typedef struct names
+typedef struct namesStartingWithChar
 {
     record *record;
-    struct names *nextName;
-} names;
+    struct namesStartingWithChar *nextName;
+} namesStartingWithChar;
 
-names *array[255] = {}; //there are 255 linked lists for all 255 chars in char type.
+namesStartingWithChar *array[255] = {}; //there are 255 linked lists for all 255 chars in char type.
 //There are only 26 characters in alphabet. but this also works 😂
 
 //pointer to head and tail
@@ -396,7 +396,7 @@ void readFileThenAddThemToArrays(char *fileName)
 record *getPointerOfNameInLinkedList(char *namePointer, int *doesNameExist)
 {
     //select the head from the array of linked lists that start from a character
-    names *currentNode = array[(int)namePointer[0]];
+    namesStartingWithChar *currentNode = array[(int)namePointer[0]];
 
     //loop through the list to find if the name exists
     while (currentNode != NULL)
@@ -827,14 +827,14 @@ record *createNewRecord(char *nameSTR)
     int index = (int)nameSTR[0];
     if (array[index] == NULL)
     { //if there are no names starting from that, this is the first one
-        names *newName = (names *)malloc(sizeof(names));
+        namesStartingWithChar *newName = (namesStartingWithChar *)malloc(sizeof(namesStartingWithChar));
         newName->record = newNode;
         newName->nextName = NULL;
         array[index] = newName;
     }
     else
     { // if there are exisitng ones, insert this name at head
-        names *newName = (names *)malloc(sizeof(names));
+        namesStartingWithChar *newName = (namesStartingWithChar *)malloc(sizeof(namesStartingWithChar));
         newName->record = newNode;
         newName->nextName = array[index];
         array[index] = newName;
