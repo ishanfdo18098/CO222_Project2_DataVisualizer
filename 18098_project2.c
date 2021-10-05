@@ -18,7 +18,7 @@ Author : Fernando K.A. Ishan - E/18/098
 #include <stdlib.h> //aoti()
 #include <string.h> //strlen()
 #include <ctype.h>  //isdigit()
-
+#include <limits.h> //for the minimum number of long long
 //a node in the linked list
 typedef struct record
 {
@@ -556,8 +556,8 @@ void sortData()
     for (int i = 0; i < numberOfEntriesToPrintInGraph; i++) //get the top most entries
     {
         currentNode = head;
-        maximumData = -9223372036854775807; //minimum number possible in type LONG LONG
-        while (currentNode != NULL)         //go through all the nodes
+        maximumData = LLONG_MIN;    //minimum number possible in type LONG LONG
+        while (currentNode != NULL) //go through all the nodes
         {
             if (currentNode->data > maximumData)
             {
