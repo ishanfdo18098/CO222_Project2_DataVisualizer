@@ -28,7 +28,7 @@ typedef struct record
 } record;
 
 //keep linked lists of names starting from same character
-//Thank you CO222 discussion 😍
+//Thank you Thamish for the idea 😍
 typedef struct namesStartingWithChar
 {
     record *record;
@@ -42,12 +42,15 @@ namesStartingWithChar *array[255] = {}; //there are 255 linked lists for all 255
 record *head = NULL;
 record *tail = NULL;
 
-int numberOfElementsInGraph = 10; // -l option given
-int isScaled = 0;                 // flag for --scaled
-int isMeeting = 0;                // flag for -m
-int isParticipants = 0;           // flag for -p
-int isTime = 0;                   // flag for -t
-char *programName;                // used to get the program name in printUsage()
+int numberOfElementsInGraph = 10;            // -l option given
+int isScaled = 0;                            // flag for --scaled
+int isMeeting = 0;                           // flag for -m
+int isParticipants = 0;                      // flag for -p
+int isTime = 0;                              // flag for -t
+char *programName;                           // used to get the program name in printUsage()
+record **allMaximumNodes;                    //instead of sorting, find the maximum nodes in each iteration
+long long numberOfNodesInMainLinkedList = 0; //numberOfNodes in the linked list
+long long numberOfEntriesToPrintInGraph = 0; //how much nodes to print, changes based on -l and number of nodes in linked list
 
 void parseOptions(int argc, char **argv);                                                                         // option parsing
 void processFiles(int argc, char **argv);                                                                         // process the files
@@ -64,10 +67,10 @@ void sortData();                                                                
 int getNumberOfRecordsInArrays();                                                                                 // returns the number of entries in the database
 int getMaximumEnteredNameLength();                                                                                // returns the maximum name length currently in namesArray
 void printTopAndLastLineOfEntry(int barLength, int maximumNameLength);                                            // print the first line of each entry in graph
-void printMiddleLineOfEntry(char *name, record *thisRecord, int barLength, int maximumNameLength);                // print the middle line in each entry
+void printMiddleLineOfEntry(char *name, long long data, int barLength, int maximumNameLength);                    // print the middle line in each entry
 void printEmptyLineInGraph();                                                                                     // print the empty line after each entry in graph
 void printLastLineOfGraph();                                                                                      // print the last line of graph
-int getBarLength(record *thisNode, int maximumNameLength);                                                        // get the length of the bar to print
+int getBarLength(long long currentData, int maximumNameLength);                                                   // get the length of the bar to print
 int getLengthOfNumber(int number);                                                                                // get length of int number
 record *createNewRecord(char *namePointer);                                                                       // create a new record and return the pointer
 
@@ -83,7 +86,23 @@ int main(int argc, char **argv)
     processFiles(argc, argv);
 
     //sort the linked list
+    //create a array of the maximum nodes
+    numberOfEntriesToPrintInGraph = (numberOfElementsInGraph > numberOfNodesInMainLinkedList) ? numberOfNodesInMainLinkedList : numberOfElementsInGraph;
+    allMaximumNodes = (record **)malloc(sizeof(record *) * numberOfEntriesToPrintInGraph);
+    //set all the pointers to NULL
+    for (int i = 0; i < numberOfEntriesToPrintInGraph; i++)
+    {
+        allMaximumNodes[i] = NULL;
+    }
+    //populate the array by the maximum entries of the linked list
     sortData();
+
+    //if the maximum number is zero, error
+    if (allMaximumNodes[0]->data == 0)
+    {
+        puts("No data to process");
+        exit(0);
+    }
 
     //print the graph
     printGraph();
@@ -256,30 +275,26 @@ void processFiles(int argc, char **argv)
 //print the graph
 void printGraph()
 {
-    //start from head
-    record *currentNode = head;
-    //keep a count of how many nodes were printed
-    int count = 0;
     puts("");                                              //go to new line
     int maximumNameLength = getMaximumEnteredNameLength(); //the maximum name length under -l
-    //go through all the nodes in linked list
-    while (currentNode != NULL) //number of items according to -l
+    //go through all the nodes pointed by the maxiimumArray
+    for (int i = 0; i < numberOfEntriesToPrintInGraph; i++)
     {
-        //get the bar length for this entry
-        int barLength = getBarLength(currentNode, maximumNameLength);
-
-        //print a single node
-        printTopAndLastLineOfEntry(barLength, maximumNameLength);                             //top line
-        printMiddleLineOfEntry(currentNode->name, currentNode, barLength, maximumNameLength); //middle line with name
-        printTopAndLastLineOfEntry(barLength, maximumNameLength);                             //bottom line with bar
-        printEmptyLineInGraph(maximumNameLength);                                             //empty line without bars
-
-        currentNode = currentNode->nextRecord; //go to next node
-        count++;                               //printed one more node
-        if (count >= numberOfElementsInGraph)  //if printed nodes > -l -> break
+        if (allMaximumNodes[i] == NULL) //just in case if something is null, dont print it
         {
             break;
         }
+
+        char *name = allMaximumNodes[i]->name;
+        long long data = allMaximumNodes[i]->data;
+        //get the bar length for this entry
+        int barLength = getBarLength(data, maximumNameLength);
+
+        //print a single node
+        printTopAndLastLineOfEntry(barLength, maximumNameLength);         //top line
+        printMiddleLineOfEntry(name, data, barLength, maximumNameLength); //middle line with name
+        printTopAndLastLineOfEntry(barLength, maximumNameLength);         //bottom line with bar
+        printEmptyLineInGraph(maximumNameLength);                         //empty line without bars
     }
     printLastLineOfGraph(maximumNameLength); //this is the axis
 }
@@ -448,6 +463,8 @@ void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInH
         tail->nextRecord = thisRecord; //the node after tail is this node
         tail = thisRecord;             //then this node becomes the new tail
     }
+
+    numberOfNodesInMainLinkedList += 1; //keep track of how many elements are there in the linked list
 }
 
 //update an existing record, meaning add the current values to the old values
@@ -528,140 +545,171 @@ void checkIfStringIsNumerical(char *pointerToString)
 //sort the records in the linked list
 void sortData()
 {
-    //bubble sort
-    record *currentNode = head;
-    record *previousNode = head;
-    int didAnythingChange = 1; //run the loop again if something is changed
-    int currentNodeValue = 0;  //are we on -m -t -p ?
-    int nextNodeValue = 0;     //are we on -m -t -p ?
+    //Thank you Piumal for the idea 😍
+    //instead of sorting, find the top required nodes by going through the linked list and finding the maxmium values
+    int index = 0; // which index are we writing in the allMaximumArray
 
-    while (didAnythingChange)
+    record *currentNode = head; //traverse the linked list
+    record *maximumNode = NULL;
+
+    long long maximumData;
+    for (int i = 0; i < numberOfEntriesToPrintInGraph; i++) //get the top most entries
     {
-        //set flag to 0, to stop the loop eventually
-        didAnythingChange = 0;
-        //iterate over all the elements except the last
-        while (currentNode->nextRecord != NULL)
+        currentNode = head;
+        maximumData = -9223372036854775807; //minimum number possible in type LONG LONG
+        while (currentNode != NULL)         //go through all the nodes
         {
-            //get values of current and next
-            currentNodeValue = currentNode->data;
-            nextNodeValue = currentNode->nextRecord->data;
-
-            //if the element next to the current one is larger than current one
-            if (currentNodeValue < nextNodeValue)
+            if (currentNode->data > maximumData)
             {
-                //set flag to 1, then the loop will occur once again
-                //at some point, no changes will be made, then the loop ends
-                didAnythingChange = 1;
-                if (currentNode == head && currentNode->nextRecord != tail) //current is at head, but there are more than 3 modes in total
+                //checks if the current value is larger than the maximumData
+                //if its larger, check if we have already saved that name, then dont save it again
+                //if its not save before, then save it and set the new maximum
+                //this doesnt have any effect on the linked list, jsut goes throgh everything and extracts the pointers to the needed nodes
+                int nameFound = 0;
+                for (int i = 0; i < numberOfEntriesToPrintInGraph; i++)
                 {
-                    // puts("1");
-
-                    //update the head pointer
-                    record *tempCurrentNode = currentNode;
-                    head = currentNode->nextRecord;
-                    currentNode->nextRecord = currentNode->nextRecord->nextRecord;
-                    head->nextRecord = tempCurrentNode;
+                    if (allMaximumNodes[i] != NULL && strcmp(currentNode->name, allMaximumNodes[i]->name) == 0) //did we already take that name ?
+                    {
+                        nameFound = 1;
+                        break;
+                    }
                 }
-                else if (currentNode->nextRecord == tail && currentNode != head) //next is tail, but current is not head. This takes care of the replacing the tail.
+                if (!nameFound) //if we havent taken that node before
                 {
-                    // puts("2");
-                    previousNode->nextRecord = tail;
-                    tail->nextRecord = currentNode;
-                    currentNode->nextRecord = NULL;
-                    tail = currentNode;
-                    //changed the tail position, therefore dont have to check the next node
-                    break;
+                    maximumData = currentNode->data;
+                    maximumNode = currentNode;
                 }
-                else if (currentNode == head && currentNode->nextRecord == tail) //there are only two nodes in the linked list
-                {
-                    // puts("3");
-                    //swap head and tail
-                    record *tempNode = head;
-                    tail->nextRecord = tempNode;
-                    tempNode->nextRecord = NULL;
-                    head = tail;
-                    tail = tempNode;
-                    break;
-                }
-                else if (currentNode->nextRecord != NULL && currentNode->nextRecord->nextRecord != NULL)
-                { //there are 4 consecutive nodes to sort, general case. somewhere in the middle
-                    // puts("4");
-                    record *nextNode = currentNode->nextRecord;
-                    record *secondNextNode = currentNode->nextRecord->nextRecord;
-
-                    previousNode->nextRecord = nextNode;
-                    nextNode->nextRecord = currentNode;
-                    currentNode->nextRecord = secondNextNode;
-                }
-                else //there shouldnt be any other case than that. If there is, my code is wrong 😥
-                {
-                    puts("sortData: somethign wrong in the code. This must be impossible");
-                    exit(0);
-                }
-
-                //I made the sorting method above, but the same is done in a way easier method here https://www.geeksforgeeks.org/bubble-sort-for-linked-list-by-swapping-nodes/
-
-                //this is the old sorting by copying values over, this was much slower than the new method
-
-                // //swap the elements in the chosenArray to sort
-                // long long tempLONGLONG = currentNode->numberOfMeetings;
-                // currentNode->numberOfMeetings = currentNode->nextRecord->numberOfMeetings;
-                // currentNode->nextRecord->numberOfMeetings = tempLONGLONG;
-
-                // tempLONGLONG = currentNode->numberOfParticipants;
-                // currentNode->numberOfParticipants = currentNode->nextRecord->numberOfParticipants;
-                // currentNode->nextRecord->numberOfParticipants = tempLONGLONG;
-
-                // tempLONGLONG = currentNode->timeDurationInMinutes;
-                // currentNode->timeDurationInMinutes = currentNode->nextRecord->timeDurationInMinutes;
-                // currentNode->nextRecord->timeDurationInMinutes = tempLONGLONG;
-
-                // //then have to change the names accordingly too. otherwise we dont know which number is whose 😂
-                // char tempName[MAX_NAME_LENGTH];
-                // strcpy(tempName, currentNode->name);
-                // strcpy(currentNode->name, currentNode->nextRecord->name);
-                // strcpy(currentNode->nextRecord->name, tempName);
             }
 
-            // go to next node
-            previousNode = currentNode;
-            currentNode = currentNode->nextRecord;
+            currentNode = currentNode->nextRecord; //next node
         }
-
-        //go over the whole linked list again
-        currentNode = head;
-        previousNode = head;
+        //after going through the linked list, the maximum must be saved
+        allMaximumNodes[index++] = maximumNode;
     }
 
-    //if the maximum is zero, there is nothing to print anyway
-    if (head->data == 0)
-    {
-        puts("No data to process");
-        exit(0);
-    }
+    // //bubble sort
+    // record *currentNode = head;
+    // record *previousNode = head;
+    // int didAnythingChange = 1; //run the loop again if something is changed
+    // int currentNodeValue = 0;  //are we on -m -t -p ?
+    // int nextNodeValue = 0;     //are we on -m -t -p ?
+
+    // while (didAnythingChange)
+    // {
+    //     //set flag to 0, to stop the loop eventually
+    //     didAnythingChange = 0;
+    //     //iterate over all the elements except the last
+    //     while (currentNode->nextRecord != NULL)
+    //     {
+    //         //get values of current and next
+    //         currentNodeValue = currentNode->data;
+    //         nextNodeValue = currentNode->nextRecord->data;
+
+    //         //if the element next to the current one is larger than current one
+    //         if (currentNodeValue < nextNodeValue)
+    //         {
+    //             //set flag to 1, then the loop will occur once again
+    //             //at some point, no changes will be made, then the loop ends
+    //             didAnythingChange = 1;
+    //             if (currentNode == head && currentNode->nextRecord != tail) //current is at head, but there are more than 3 modes in total
+    //             {
+    //                 // puts("1");
+
+    //                 //update the head pointer
+    //                 record *tempCurrentNode = currentNode;
+    //                 head = currentNode->nextRecord;
+    //                 currentNode->nextRecord = currentNode->nextRecord->nextRecord;
+    //                 head->nextRecord = tempCurrentNode;
+    //             }
+    //             else if (currentNode->nextRecord == tail && currentNode != head) //next is tail, but current is not head. This takes care of the replacing the tail.
+    //             {
+    //                 // puts("2");
+    //                 previousNode->nextRecord = tail;
+    //                 tail->nextRecord = currentNode;
+    //                 currentNode->nextRecord = NULL;
+    //                 tail = currentNode;
+    //                 //changed the tail position, therefore dont have to check the next node
+    //                 break;
+    //             }
+    //             else if (currentNode == head && currentNode->nextRecord == tail) //there are only two nodes in the linked list
+    //             {
+    //                 // puts("3");
+    //                 //swap head and tail
+    //                 record *tempNode = head;
+    //                 tail->nextRecord = tempNode;
+    //                 tempNode->nextRecord = NULL;
+    //                 head = tail;
+    //                 tail = tempNode;
+    //                 break;
+    //             }
+    //             else if (currentNode->nextRecord != NULL && currentNode->nextRecord->nextRecord != NULL)
+    //             { //there are 4 consecutive nodes to sort, general case. somewhere in the middle
+    //                 // puts("4");
+    //                 record *nextNode = currentNode->nextRecord;
+    //                 record *secondNextNode = currentNode->nextRecord->nextRecord;
+
+    //                 previousNode->nextRecord = nextNode;
+    //                 nextNode->nextRecord = currentNode;
+    //                 currentNode->nextRecord = secondNextNode;
+    //             }
+    //             else //there shouldnt be any other case than that. If there is, my code is wrong 😥
+    //             {
+    //                 puts("sortData: somethign wrong in the code. This must be impossible");
+    //                 exit(0);
+    //             }
+
+    //             //I made the sorting method above, but the same is done in a way easier method here https://www.geeksforgeeks.org/bubble-sort-for-linked-list-by-swapping-nodes/
+
+    //             //this is the old sorting by copying values over, this was much slower than the new method
+
+    //             // //swap the elements in the chosenArray to sort
+    //             // long long tempLONGLONG = currentNode->numberOfMeetings;
+    //             // currentNode->numberOfMeetings = currentNode->nextRecord->numberOfMeetings;
+    //             // currentNode->nextRecord->numberOfMeetings = tempLONGLONG;
+
+    //             // tempLONGLONG = currentNode->numberOfParticipants;
+    //             // currentNode->numberOfParticipants = currentNode->nextRecord->numberOfParticipants;
+    //             // currentNode->nextRecord->numberOfParticipants = tempLONGLONG;
+
+    //             // tempLONGLONG = currentNode->timeDurationInMinutes;
+    //             // currentNode->timeDurationInMinutes = currentNode->nextRecord->timeDurationInMinutes;
+    //             // currentNode->nextRecord->timeDurationInMinutes = tempLONGLONG;
+
+    //             // //then have to change the names accordingly too. otherwise we dont know which number is whose 😂
+    //             // char tempName[MAX_NAME_LENGTH];
+    //             // strcpy(tempName, currentNode->name);
+    //             // strcpy(currentNode->name, currentNode->nextRecord->name);
+    //             // strcpy(currentNode->nextRecord->name, tempName);
+    //         }
+
+    //         // go to next node
+    //         previousNode = currentNode;
+    //         currentNode = currentNode->nextRecord;
+    //     }
+
+    //     //go over the whole linked list again
+    //     currentNode = head;
+    //     previousNode = head;
+    // }
+
+    // //if the maximum is zero, there is nothing to print anyway
+    // if (head->data == 0)
+    // {
+    //     puts("No data to process");
+    //     exit(0);
+    // }
 }
 
 //get the maximum length of a single name entered into the namesArray (until whats specified by -l), used when printing the table to scale
 int getMaximumEnteredNameLength()
 {
     int maxmimumLength = 0;
-    //start at the head
-    record *currentNode = head;
-    int count = 0;
     //go through the names that will be printed and find the maximum
-    while (currentNode != NULL)
+    for (int i = 0; i < numberOfEntriesToPrintInGraph; i++)
     {
-        if (strlen(currentNode->name) > maxmimumLength)
+        if (allMaximumNodes[i] != NULL && strlen(allMaximumNodes[i]->name) > maxmimumLength)
         {
-            maxmimumLength = strlen(currentNode->name);
-        }
-        currentNode = currentNode->nextRecord;
-        count++;
-
-        //if -l count is reached, dont have to check for other names
-        if (count >= numberOfElementsInGraph)
-        {
-            break;
+            maxmimumLength = strlen(allMaximumNodes[i]->name);
         }
     }
 
@@ -692,7 +740,7 @@ void printTopAndLastLineOfEntry(int barLength, int maximumNameLength)
 }
 
 //this prints the middle line of each entry in graph, the line with name and the number
-void printMiddleLineOfEntry(char *name, record *thisRecord, int barLength, int maximumNameLength)
+void printMiddleLineOfEntry(char *name, long long data, int barLength, int maximumNameLength)
 {
     //print the name
     printf(" %s", name);
@@ -714,7 +762,7 @@ void printMiddleLineOfEntry(char *name, record *thisRecord, int barLength, int m
     }
 
     //print the number
-    printf("%lld", thisRecord->data);
+    printf("%lld", data);
 
     //goto next line
     puts("");
@@ -753,13 +801,13 @@ void printLastLineOfGraph(int maxNameLength)
 }
 
 //get the bar length according to --scaled or not
-int getBarLength(record *thisNode, int maximumNameLength)
+int getBarLength(long long currentData, int maximumNameLength)
 {
     long long largestNumber;
     int currentNumber;
 
-    largestNumber = head->data;
-    currentNumber = thisNode->data;
+    largestNumber = allMaximumNodes[0]->data;
+    currentNumber = currentData;
 
     //first find the maximum bar length, this changes because the name length changes and the maximum graph width is 80
     int numberOfSpacesToKeep = maximumNameLength + 2;
