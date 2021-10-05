@@ -13,6 +13,9 @@ testall:
 upload:
 	scp automaticTests.sh $(c_code) samplev1 testBoth.sh Makefile timeToRunBoth.sh e18098@aiken.ce.pdn.ac.lk:~/co222/project2/
 
+uploadtoramdisk:
+	scp automaticTests.sh $(c_code) samplev1 testBoth.sh Makefile timeToRunBoth.sh e18098@aiken.ce.pdn.ac.lk:/dev/shm/ishanfdo/
+
 rungprof:
 	gcc $(c_code) -Wall -pg
 	bash automaticTests.sh $(l)

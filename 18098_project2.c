@@ -19,6 +19,7 @@ Author : Fernando K.A. Ishan - E/18/098
 #include <string.h> //strlen()
 #include <ctype.h>  //isdigit()
 #include <limits.h> //for the minimum number of long long
+
 //a node in the linked list
 typedef struct record
 {
