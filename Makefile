@@ -1,4 +1,4 @@
-c_code=18098_project2.c
+c_code=18098Project2.c
 
 a.out : $(c_code)
 	gcc $(c_code) -Wall
