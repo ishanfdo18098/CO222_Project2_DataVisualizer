@@ -36,47 +36,51 @@ typedef struct namesStartingWithChar
     struct namesStartingWithChar *nextName;
 } namesStartingWithChar;
 
-namesStartingWithChar *array[255] = {}; //there are 255 linked lists for all 255 chars in char type.
+static namesStartingWithChar *array[255]; //there are 255 linked lists for all 255 chars in char type.
 //There are only 26 characters in alphabet. but this also works 😂
 
 //pointer to head and tail
-record *head = NULL;
-record *tail = NULL;
+static record *head = NULL;
+static record *tail = NULL;
 
-int numberOfElementsInGraph = 10;            // -l option given
-int isScaled = 0;                            // flag for --scaled
-int isMeeting = 0;                           // flag for -m
-int isParticipants = 0;                      // flag for -p
-int isTime = 0;                              // flag for -t
-char *programName;                           // used to get the program name in printUsage()
-record **allMaximumNodes;                    //instead of sorting, find the maximum nodes in each iteration
-long long numberOfNodesInMainLinkedList = 0; //numberOfNodes in the linked list
-long long numberOfEntriesToPrintInGraph = 0; //how much nodes to print, changes based on -l and number of nodes in linked list
+static int numberOfElementsInGraph = 10;            // -l option given
+static int isScaled = 0;                            // flag for --scaled
+static int isMeeting = 0;                           // flag for -m
+static int isParticipants = 0;                      // flag for -p
+static int isTime = 0;                              // flag for -t
+static char *programName;                           // used to get the program name in printUsage()
+static record **allMaximumNodes;                    //instead of sorting, find the maximum nodes in each iteration
+static long long numberOfNodesInMainLinkedList = 0; //numberOfNodes in the linked list
+static long long numberOfEntriesToPrintInGraph = 0; //how much nodes to print, changes based on -l and number of nodes in linked list
 
-void parseOptions();                      // option parsing
-void processFiles();                      // process the files
-void printGraph();                        // print the graph
-void printUsage();                        // print how to use the program
-void readFileThenAddThemToArrays();       // read from file
-record *getPointerOfNameInLinkedList();   // get the index of the name in the array
-int getIndexOfEmptyElementInNamesArray(); // get index of the first empty element in name array to add element to
-void writeNEWRecordToArrays();            // write a record to all 3 arrays
-long long convertHoursToMinutes();        // convert hours into minutes
-void updateExisitingRecord();             // update existing record
-void checkIfStringIsNumerical();          // check if a string is numerical
-void sortData();                          // sort the dataset using the -m -t -p
-int getNumberOfRecordsInArrays();         // returns the number of entries in the database
-int getMaximumEnteredNameLength();        // returns the maximum name length currently in namesArray
-void printTopAndLastLineOfEntry();        // print the first line of each entry in graph
-void printMiddleLineOfEntry();            // print the middle line in each entry
-void printEmptyLineInGraph();             // print the empty line after each entry in graph
-void printLastLineOfGraph();              // print the last line of graph
-int getBarLength();                       // get the length of the bar to print
-int getLengthOfNumber();                  // get length of int number
-record *createNewRecord();                // create a new record and return the pointer
+void parseOptions(int argc, char **argv);                                                      // option parsing
+void processFiles(int argc, char **argv);                                                      // process the files
+void printGraph(void);                                                                         // print the graph
+void printUsage(void);                                                                         // print how to use the program
+void readFileThenAddThemToArrays(char *fileName);                                              // read from file
+record *getPointerOfNameInLinkedList(char *namePointer, int *doesNameExist);                   // get the index of the name in the array
+void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR);      // write a record to all 3 arrays
+long long convertHoursToMinutes(char *timeInHours);                                            // convert hours into minutes
+void updateExisitingRecord(char *pariticipantsSTR, char *timeInHoursSTR, record *thisRecord);  // update existing record
+void checkIfStringIsNumerical(char *pointerToString);                                          // check if a string is numerical
+void sortData(void);                                                                           // sort the dataset using the -m -t -p
+int getMaximumEnteredNameLength(void);                                                         // returns the maximum name length currently in namesArray
+void printTopAndLastLineOfEntry(int barLength, int maximumNameLength);                         // print the first line of each entry in graph
+void printMiddleLineOfEntry(char *name, long long data, int barLength, int maximumNameLength); // print the middle line in each entry
+void printEmptyLineInGraph(int maxLength);                                                     // print the empty line after each entry in graph
+void printLastLineOfGraph(int maxNameLength);                                                  // print the last line of graph
+int getBarLength(long long currentData, int maximumNameLength);                                // get the length of the bar to print
+int getLengthOfNumber(int number);                                                             // get length of int number
+record *createNewRecord(char *nameSTR);                                                        // create a new record and return the pointer
 
 int main(int argc, char **argv)
 {
+    //set the sub linked lists to null
+    for (int i = 0; i < 255; i++)
+    {
+        array[i] = NULL;
+    }
+
     //make a pointer to the name of program, used when printing the usage
     programName = &(argv[0][0]);
 
@@ -89,7 +93,7 @@ int main(int argc, char **argv)
     //sort the linked list
     //create a array of the maximum nodes
     numberOfEntriesToPrintInGraph = (numberOfElementsInGraph > numberOfNodesInMainLinkedList) ? numberOfNodesInMainLinkedList : numberOfElementsInGraph;
-    allMaximumNodes = (record **)malloc(sizeof(record *) * numberOfEntriesToPrintInGraph);
+    allMaximumNodes = (record **)malloc(sizeof(record *) * (unsigned long long)numberOfEntriesToPrintInGraph);
     //set all the pointers to NULL
     for (int i = 0; i < numberOfEntriesToPrintInGraph; i++)
     {
@@ -165,7 +169,7 @@ void parseOptions(int argc, char **argv)
                     exit(0);
                 }
                 //check if optarg is a numerical value
-                for (int j = 0; j < strlen(argv[i + 1]); j++)
+                for (int j = 0; j < (int)strlen(argv[i + 1]); j++)
                 {
                     if (isdigit(argv[i + 1][j]) == 0 && argv[i + 1][j] != '-') //if its not a digit and not negative sign
                     {
@@ -334,10 +338,9 @@ void readFileThenAddThemToArrays(char *fileName)
         ungetc(c, filePointer); //otherwise this character will be missing when we read the line again
     }
 
-    int bufferLength = 255;
-    char line[bufferLength];
+    char line[256];
     //read each line
-    while (fgets(line, bufferLength, filePointer))
+    while (fgets(line, 256, filePointer))
     {
         // https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
 
@@ -354,10 +357,10 @@ void readFileThenAddThemToArrays(char *fileName)
         token = strtok(line, ",");
 
         //get pointers to the corresponding parts in the line
-        char *pointerToName = token; //first token is for the name
-        char *pointerToParticipants; //second token - participants
-        char *pointerToTimeInHours;  // third token - time
-        int round = 1;               //round is counted to idenity which token is going now
+        char *pointerToName = token;        //first token is for the name
+        char *pointerToParticipants = NULL; //second token - participants
+        char *pointerToTimeInHours = NULL;  // third token - time
+        int round = 1;                      //round is counted to idenity which token is going now
         /* walk through other tokens */
         while (token != NULL)
         {
@@ -395,7 +398,7 @@ void readFileThenAddThemToArrays(char *fileName)
         if (doesNameExist)
         {
             //if it exists, update the corresponding records
-            updateExisitingRecord(pointerToName, pointerToParticipants, pointerToTimeInHours, pointerToExistingRecord);
+            updateExisitingRecord(pointerToParticipants, pointerToTimeInHours, pointerToExistingRecord);
         }
         else
         {
@@ -469,7 +472,7 @@ void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInH
 }
 
 //update an existing record, meaning add the current values to the old values
-void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR, record *thisRecord)
+void updateExisitingRecord(char *pariticipantsSTR, char *timeInHoursSTR, record *thisRecord)
 {
     //update the existing record
     if (isParticipants)
@@ -531,7 +534,7 @@ long long convertHoursToMinutes(char *timeInHours)
 void checkIfStringIsNumerical(char *pointerToString)
 {
     //create varibale that contains the limit, then strlen wont run every iteration
-    int limit = strlen(pointerToString);
+    int limit = (int)strlen(pointerToString);
     //for each char in the string
     for (int i = 0; i < limit; i++)
     {
@@ -567,9 +570,9 @@ void sortData()
                 //if its not save before, then save it and set the new maximum
                 //this doesnt have any effect on the linked list, jsut goes throgh everything and extracts the pointers to the needed nodes
                 int nameFound = 0;
-                for (int i = 0; i < numberOfEntriesToPrintInGraph; i++)
+                for (int j = 0; j < numberOfEntriesToPrintInGraph; j++)
                 {
-                    if (allMaximumNodes[i] != NULL && strcmp(currentNode->name, allMaximumNodes[i]->name) == 0) //did we already take that name ?
+                    if (allMaximumNodes[j] != NULL && strcmp(currentNode->name, allMaximumNodes[j]->name) == 0) //did we already take that name ?
                     {
                         nameFound = 1;
                         break;
@@ -708,9 +711,9 @@ int getMaximumEnteredNameLength()
     //go through the names that will be printed and find the maximum
     for (int i = 0; i < numberOfEntriesToPrintInGraph; i++)
     {
-        if (allMaximumNodes[i] != NULL && strlen(allMaximumNodes[i]->name) > maxmimumLength)
+        if (allMaximumNodes[i] != NULL && (int)strlen(allMaximumNodes[i]->name) > maxmimumLength)
         {
-            maxmimumLength = strlen(allMaximumNodes[i]->name);
+            maxmimumLength = (int)strlen(allMaximumNodes[i]->name);
         }
     }
 
@@ -747,7 +750,7 @@ void printMiddleLineOfEntry(char *name, long long data, int barLength, int maxim
     printf(" %s", name);
 
     //print the correct number of spaces
-    int numberOfSpaces = maximumNameLength - strlen(name) + 1;
+    int numberOfSpaces = maximumNameLength - (int)strlen(name) + 1;
     for (int i = 0; i < numberOfSpaces; i++)
     {
         printf(" ");
@@ -805,7 +808,7 @@ void printLastLineOfGraph(int maxNameLength)
 int getBarLength(long long currentData, int maximumNameLength)
 {
     long long largestNumber;
-    int currentNumber;
+    long long currentNumber;
 
     largestNumber = allMaximumNodes[0]->data;
     currentNumber = currentData;
@@ -839,7 +842,7 @@ int getBarLength(long long currentData, int maximumNameLength)
         //get the number of bars per unit, this way, the whole bar means the sum of all the entries
         float numberOfBarsPerUnit = maximumBarLength / (float)sumOfValues;
         //get the number of bars for this record
-        int numberOfBarsForThisEntry = (float)(numberOfBarsPerUnit * currentNumber);
+        int numberOfBarsForThisEntry = (int)((float)(numberOfBarsPerUnit * currentNumber));
         // printf("%lf", numberOfBarsPerUnit * chosenArray[index]);
         // printf("%d", numberOfBarsForThisEntry);
 
