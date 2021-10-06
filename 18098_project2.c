@@ -53,27 +53,27 @@ record **allMaximumNodes;                    //instead of sorting, find the maxi
 long long numberOfNodesInMainLinkedList = 0; //numberOfNodes in the linked list
 long long numberOfEntriesToPrintInGraph = 0; //how much nodes to print, changes based on -l and number of nodes in linked list
 
-void parseOptions(int argc, char **argv);                                                                         // option parsing
-void processFiles(int argc, char **argv);                                                                         // process the files
-void printGraph();                                                                                                // print the graph
-void printUsage();                                                                                                // print how to use the program
-void readFileThenAddThemToArrays(char *fileName);                                                                 // read from file
-record *getPointerOfNameInLinkedList(char *namePointer, int *doesNotExist);                                       // get the index of the name in the array
-int getIndexOfEmptyElementInNamesArray();                                                                         // get index of the first empty element in name array to add element to
-void writeNEWRecordToArrays(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR);                         // write a record to all 3 arrays
-long long convertHoursToMinutes(char *timeInHours);                                                               // convert hours into minutes
-void updateExisitingRecord(char *nameSTR, char *pariticipantsSTR, char *timeInHoursSTR, record *pointerToUpdate); // update existing record
-void checkIfStringIsNumerical(char *pointerToString);                                                             // check if a string is numerical
-void sortData();                                                                                                  // sort the dataset using the -m -t -p
-int getNumberOfRecordsInArrays();                                                                                 // returns the number of entries in the database
-int getMaximumEnteredNameLength();                                                                                // returns the maximum name length currently in namesArray
-void printTopAndLastLineOfEntry(int barLength, int maximumNameLength);                                            // print the first line of each entry in graph
-void printMiddleLineOfEntry(char *name, long long data, int barLength, int maximumNameLength);                    // print the middle line in each entry
-void printEmptyLineInGraph();                                                                                     // print the empty line after each entry in graph
-void printLastLineOfGraph();                                                                                      // print the last line of graph
-int getBarLength(long long currentData, int maximumNameLength);                                                   // get the length of the bar to print
-int getLengthOfNumber(int number);                                                                                // get length of int number
-record *createNewRecord(char *namePointer);                                                                       // create a new record and return the pointer
+void parseOptions();                      // option parsing
+void processFiles();                      // process the files
+void printGraph();                        // print the graph
+void printUsage();                        // print how to use the program
+void readFileThenAddThemToArrays();       // read from file
+record *getPointerOfNameInLinkedList();   // get the index of the name in the array
+int getIndexOfEmptyElementInNamesArray(); // get index of the first empty element in name array to add element to
+void writeNEWRecordToArrays();            // write a record to all 3 arrays
+long long convertHoursToMinutes();        // convert hours into minutes
+void updateExisitingRecord();             // update existing record
+void checkIfStringIsNumerical();          // check if a string is numerical
+void sortData();                          // sort the dataset using the -m -t -p
+int getNumberOfRecordsInArrays();         // returns the number of entries in the database
+int getMaximumEnteredNameLength();        // returns the maximum name length currently in namesArray
+void printTopAndLastLineOfEntry();        // print the first line of each entry in graph
+void printMiddleLineOfEntry();            // print the middle line in each entry
+void printEmptyLineInGraph();             // print the empty line after each entry in graph
+void printLastLineOfGraph();              // print the last line of graph
+int getBarLength();                       // get the length of the bar to print
+int getLengthOfNumber();                  // get length of int number
+record *createNewRecord();                // create a new record and return the pointer
 
 int main(int argc, char **argv)
 {
