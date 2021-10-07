@@ -36,7 +36,7 @@ typedef struct namesStartingWithChar
     struct namesStartingWithChar *nextName;
 } namesStartingWithChar;
 
-static namesStartingWithChar *array[255]; //there are 255 linked lists for all 255 chars in char type.
+static namesStartingWithChar *namesStartFromChar[255]; //there are 255 linked lists for all 255 chars in char type.
 //There are only 26 characters in alphabet. but this also works 😂
 
 //pointer to head and tail
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
     //set the sub linked lists to null
     for (int i = 0; i < 255; i++)
     {
-        array[i] = NULL;
+        namesStartFromChar[i] = NULL;
     }
 
     //make a pointer to the name of program, used when printing the usage
@@ -415,7 +415,7 @@ void readFileThenAddThemToArrays(char *fileName)
 record *getPointerOfNameInLinkedList(char *namePointer, int *doesNameExist)
 {
     //select the head from the array of linked lists that start from a character
-    namesStartingWithChar *currentNode = array[(int)namePointer[0]];
+    namesStartingWithChar *currentNode = namesStartFromChar[(int)namePointer[0]];
 
     //loop through the list to find if the name exists
     while (currentNode != NULL)
@@ -877,19 +877,19 @@ record *createNewRecord(char *nameSTR)
 
     //add this new element to the other linked list too
     int index = (int)nameSTR[0];
-    if (array[index] == NULL)
+    if (namesStartFromChar[index] == NULL)
     { //if there are no names starting from that, this is the first one
         namesStartingWithChar *newName = (namesStartingWithChar *)malloc(sizeof(namesStartingWithChar));
         newName->record = newNode;
         newName->nextName = NULL;
-        array[index] = newName;
+        namesStartFromChar[index] = newName;
     }
     else
     { // if there are exisitng ones, insert this name at head
         namesStartingWithChar *newName = (namesStartingWithChar *)malloc(sizeof(namesStartingWithChar));
         newName->record = newNode;
-        newName->nextName = array[index];
-        array[index] = newName;
+        newName->nextName = namesStartFromChar[index];
+        namesStartFromChar[index] = newName;
     }
 
     //allocate space for a name
